@@ -82,6 +82,21 @@ export function statusNameShort(status : number) : string {
     }
 }
 
+export function statusNameIcon(status : number) : string {
+    switch (status) {
+        case CREATED_FILE:
+            return "gear";
+        case CREATED_STACK:
+            return "gear";
+        case RUNNING:
+            return "play";
+        case EXITED:
+            return "stop";
+        default:
+            return "question";
+    }
+}
+
 export function statusColor(status : number) : string {
     switch (status) {
         case CREATED_FILE:
@@ -89,7 +104,7 @@ export function statusColor(status : number) : string {
         case CREATED_STACK:
             return "dark";
         case RUNNING:
-            return "primary";
+            return "success";
         case EXITED:
             return "danger";
         default:

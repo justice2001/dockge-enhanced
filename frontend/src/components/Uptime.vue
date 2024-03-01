@@ -1,11 +1,13 @@
 <template>
-    <span :class="className">{{ statusName }}</span>
+    <span :class="className"><font-awesome-icon :icon="statusName" /></span>
 </template>
 
 <script>
-import { statusColor, statusNameShort } from "../../../common/util-common";
+import { statusColor, statusNameIcon } from "../../../common/util-common";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 export default {
+    components: { FontAwesomeIcon },
     props: {
         stack: {
             type: Object,
@@ -27,7 +29,7 @@ export default {
         },
 
         statusName() {
-            return this.$t(statusNameShort(this.stack?.status));
+            return statusNameIcon(this.stack?.status);
         },
 
         className() {
@@ -44,12 +46,12 @@ export default {
 
 <style scoped>
 .badge {
-    min-width: 62px;
+    min-width: 32px;
 
 }
 
 .fixed-width {
-    width: 62px;
+    width: 32px;
     overflow: hidden;
     text-overflow: ellipsis;
 }
