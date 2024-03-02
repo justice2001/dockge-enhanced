@@ -7,3 +7,8 @@ Project Monika 仅为该项目代号， 并非是项目名称，项目名称还�
 ## 📄 TODO
 
 - [ ] 添加图标
+
+
+## BACK
+
+`--platform linux/amd64,linux/arm64,linux/arm/v7`
