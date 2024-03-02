@@ -80,6 +80,8 @@ export class DockgeServer {
 
     stacksDir : string = "";
 
+    dataDir : string = "";
+
     /**
      *
      */
@@ -136,6 +138,10 @@ export class DockgeServer {
             stacksDir: {
                 type: String,
                 optional: true,
+            },
+            dockerDataDir: {
+                type: String,
+                optional: true,
             }
         });
 
@@ -149,7 +155,9 @@ export class DockgeServer {
         this.config.hostname = args.hostname || process.env.DOCKGE_HOSTNAME || undefined;
         this.config.dataDir = args.dataDir || process.env.DOCKGE_DATA_DIR || "./data/";
         this.config.stacksDir = args.stacksDir || process.env.DOCKGE_STACKS_DIR || defaultStacksDir;
+        this.config.dockerDataDir = args.dockerDataDir || process.env.DOCKER_DATA || "/opt/docker";
         this.stacksDir = this.config.stacksDir;
+        this.dataDir = this.config.dockerDataDir;
 
         log.debug("server", this.config);
 
@@ -551,6 +559,10 @@ export class DockgeServer {
         // Create data/stacks directory
         if (!fs.existsSync(this.stacksDir)) {
             fs.mkdirSync(this.stacksDir, { recursive: true });
+        }
+
+        if (!fs.existsSync(this.dataDir)) {
+            fs.mkdirSync(this.dataDir, {recursive: true});
         }
 
         log.info("server", `Data Dir: ${this.config.dataDir}`);

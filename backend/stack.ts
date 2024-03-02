@@ -156,6 +156,10 @@ export class Stack {
         return path.join(this.server.stacksDir, this.name);
     }
 
+    get dataDir() : string {
+        return path.join(this.server.dataDir, this.name);
+    }
+
     get fullPath() : string {
         let dir = this.path;
 
@@ -177,8 +181,11 @@ export class Stack {
      */
     async save(isAdd : boolean) {
         this.validate();
+        log.info("DEPLOY", this.composeYAML);
 
         let dir = this.path;
+
+        let dataDir = this.dataDir;
 
         // Check if the name is used if isAdd
         if (isAdd) {
@@ -194,7 +201,17 @@ export class Stack {
             }
         }
 
+        // Check data dir
+        if (!await fileExists(dataDir)) {
+            await fsAsync.mkdir(dataDir);
+        }
+
         // Write or overwrite the compose.yaml
+
+        this._composeYAML = this.composeYAML.replaceAll("${DATA}", dataDir);
+
+        log.info("DEPLOY", this.dataDir);
+
         await fsAsync.writeFile(path.join(dir, this._composeFileName), this.composeYAML);
 
         const envPath = path.join(dir, ".env");

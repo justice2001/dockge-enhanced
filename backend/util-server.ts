@@ -30,12 +30,14 @@ export interface Arguments {
     hostname? : string;
     dataDir? : string;
     stacksDir? : string;
+    dockerDataDir? : string;
 }
 
 // Some config values are required
 export interface Config extends Arguments {
     dataDir : string;
     stacksDir : string;
+    dockerDataDir : string;
 }
 
 export function checkLogin(socket : DockgeSocket) {
