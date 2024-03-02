@@ -1,19 +1,30 @@
-<script setup lang="ts">
+<script lang="ts">
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { FileDef } from "../util-frontend";
+import {defineComponent} from "vue";
 
 interface FileItemProps {
     file: FileDef
 }
 
-// eslint-disable-next-line no-unused-vars
-defineProps<FileItemProps>();
+export default defineComponent({
+    props: {
+        file: {
+            type: Object,
+            required: true
+        },
+        selected: {
+            type: Boolean,
+            default: false
+        }
+    }
+});
 
 </script>
 
 <template>
-    <div class="item">
+    <div class="item" :class="{selected}">
         <font-awesome-icon :icon="file.folder ? 'folder' : 'file'" />
         <span class="file-name">{{ file.name }}</span>
     </div>
@@ -23,6 +34,10 @@ defineProps<FileItemProps>();
 .item {
     cursor: pointer;
     user-select: none;
+
+    &.selected {
+        background-color: #070a10;
+    }
 
     & .file-name {
         margin-left: 10px;

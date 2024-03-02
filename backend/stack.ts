@@ -560,14 +560,23 @@ export class Stack {
                 folder: stats.isDirectory(),
             };
         });
-        return Promise.all(filePromises);
+        const fileList = await Promise.all(filePromises);
+        if (p !== "/") {
+            fileList.unshift({
+                name: "..",
+                path: path.resolve(p, ".."),
+                folder: true,
+            });
+        }
+        return fileList;
     }
 
     async getFile(p: string) {
         const file = path.join(this.dataDir, p);
-        console.log(file);
         const content = await fsAsync.readFile(file, "utf-8");
-        log.debug("file", content);
+        if (typeof(content) !== "string") {
+            throw new ValidationError("Cannot open file: " + file);
+        }
         return content;
     }
 }

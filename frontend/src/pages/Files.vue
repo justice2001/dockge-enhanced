@@ -3,6 +3,8 @@ import { defineComponent } from "vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { log } from "../../../backend/log";
 
+let lastSelectTime = 0;
+
 export default defineComponent({
     name: "Files",
     components: { FontAwesomeIcon },
@@ -21,7 +23,9 @@ export default defineComponent({
                 { name: "icons",
                     path: "/opt/docker/homepage/icons",
                     folder: true },
-            ]
+            ],
+            selected: [],
+            currentPath: ""
         };
     },
     computed: {
@@ -34,21 +38,36 @@ export default defineComponent({
         },
     },
     mounted() {
-        this.$root.emitAgent(this.endpoint, "listDir", "homepage", "/", (res) => {
-            console.log(res.files);
-            this.files = res.files;
-        });
+        this.loadDir("/");
     },
     methods: {
+        select(file) {
+            if (this.selected.length === 1 && file.name === this.selected[0] && Date.now() - lastSelectTime < 1000) {
+                console.log("Double Click");
+                this.open(file);
+            }
+            this.selected = [ file.name ];
+            lastSelectTime = Date.now();
+        },
+
         open(file) {
             console.log(file);
             if (file.folder) {
                 // Open Folder
+                this.loadDir(file.path);
             } else {
                 // Open File
                 this.$refs.fileEditor.open(file);
             }
         },
+
+        loadDir(dir: string) {
+            this.$root.emitAgent(this.endpoint, "listDir", this.stackName, dir, (res) => {
+                console.log(res.files);
+                this.currentPath = dir;
+                this.files = res.files;
+            });
+        }
     },
 });
 </script>
@@ -56,7 +75,7 @@ export default defineComponent({
 <template>
     <transition name="slide-fade" appear>
         <div>
-            <h1 class="mb-3">Data - {{ stackName }}</h1>
+            <h1 class="mb-3">Data - {{ stackName }} - {{ currentPath }}</h1>
             <p class="tips">这里只会展示位于 ${DATA} (/opt/docker/[stackName]) 目录的文件</p>
             <div class="btn-group">
                 <button class="btn btn-dark">
@@ -92,12 +111,13 @@ export default defineComponent({
                 <FileItem
                     v-for="(file, idx) in files"
                     :key="idx"
+                    :selected="selected.indexOf(file.name) > -1"
                     :file="file"
-                    @click="open(file)"
+                    @click="select(file)"
                 />
             </div>
 
-            <FileEditor :endpoint="endpoint" :stack-name="stackName" ref="fileEditor" />
+            <FileEditor ref="fileEditor" :endpoint="endpoint" :stack-name="stackName" />
         </div>
     </transition>
 </template>
