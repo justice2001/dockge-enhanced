@@ -579,4 +579,10 @@ export class Stack {
         }
         return content;
     }
+
+    async saveFile(file: string, content: string) {
+        const f = path.join(this.dataDir, file);
+        await fsAsync.writeFile(f, content);
+        return true;
+    }
 }

@@ -13,6 +13,10 @@
                 <router-view :key="$route.fullPath" :calculatedHeight="height" />
             </div>
         </div>
+        <div class="copyright d-flex justify-content-between">
+            <div class="mb-2">Project Monika (rebuild by zhengyi59) Powered By Dockge</div>
+            <div class="mb-2">Version 1.0.0.beta</div>
+        </div>
     </div>
 </template>
 
@@ -38,5 +42,10 @@ export default {
 <style lang="scss" scoped>
 .container-fluid {
     width: 98%;
+}
+
+.copyright {
+    font-size: 0.8rem;
+    color: #6c757d;
 }
 </style>

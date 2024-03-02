@@ -10,6 +10,7 @@ import "prismjs/components/prism-yaml";
 import { defineComponent, ref } from "vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { FileDef } from "../util-frontend";
+import {log} from "../../../backend/log";
 
 const allLanguage = [
     {
@@ -54,7 +55,8 @@ export default defineComponent({
                 name: "UNTITLED",
                 path: "",
                 folder: false,
-            }
+            },
+            edited: false,
         };
     },
     methods: {
@@ -84,6 +86,15 @@ export default defineComponent({
         highlighter(code) {
             return highlight(code, this.language.lang, this.language.value);
         },
+
+        save() {
+            this.$root.emitAgent(this.endpoint, "saveFile", this.stackName, this.fileInfo.path, this.code, (res) => {
+                if (res.ok) {
+                    console.log("Saved!");
+                    this.edited = false;
+                }
+            });
+        }
     }
 });
 </script>
@@ -91,18 +102,25 @@ export default defineComponent({
 <template>
     <div v-if="opened" class="editor-mask">
         <div class="editor shadow-box mb-3">
-            <div class="title">{{ fileInfo.name }}</div>
+            <div class="title">{{ fileInfo.name }} <span v-if="edited">(Edited)</span> </div>
             <button class="btn-close" @click="close" />
             <div class="operation">
                 <div class="btn-group">
-                    <button class="btn btn-dark"><font-awesome-icon icon="floppy-disk" /></button>
+                    <button class="btn btn-dark" @click="save"><font-awesome-icon icon="floppy-disk" /></button>
                 </div>
                 <select :value="language.value" class="form-select ms-2" @change="languageChange">
                     <option v-for="lang in allLanguage" :key="lang.value" :value="lang.value">{{ lang.label }}</option>
                 </select>
             </div>
             <div class="editor-wrapper">
-                <PrismEditor v-model="code" class="my-editor" :readonly="disabled" :highlight="highlighter" line-numbers />
+                <PrismEditor
+                    v-model="code"
+                    class="my-editor"
+                    :readonly="disabled"
+                    :highlight="highlighter"
+                    line-numbers
+                    @input="edited = true"
+                />
             </div>
         </div>
     </div>
