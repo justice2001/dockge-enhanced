@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts">
 import { highlight, languages } from "prismjs/components/prism-core";
 import { PrismEditor } from "vue-prism-editor";
 import "prismjs/themes/prism-dark.css";
@@ -7,13 +7,9 @@ import "vue-prism-editor/dist/prismeditor.min.css";
 import "prismjs/components/prism-json.js";
 import "prismjs/components/prism-yaml";
 
-import { ref } from "vue";
+import { defineComponent, ref } from "vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import {FileDef} from "../util-frontend";
-
-const code = ref<string>("");
-
-const opened = ref<boolean>(false);
+import { FileDef } from "../util-frontend";
 
 const allLanguage = [
     {
@@ -28,41 +24,68 @@ const allLanguage = [
     }
 ];
 
-const language = ref({
-    label: "YAML",
-    value: "yaml",
-    lang: languages.yaml
-});
+export default defineComponent({
+    name: "FileEditor",
+    components: {
+        PrismEditor,
+    },
+    props: {
+        endpoint: {
+            type: String,
+            required: true
+        },
+        stackName: {
+            type: String,
+            required: true
+        }
+    },
+    data() {
+        return {
+            allLanguage: allLanguage,
+            code: "",
+            opened: false,
+            disabled: false,
+            language: {
+                label: "YAML",
+                value: "yaml",
+                lang: languages.yaml
+            },
+            fileInfo: {
+                name: "UNTITLED",
+                path: "",
+                folder: false,
+            }
+        };
+    },
+    methods: {
+        languageChange(e) {
+            const res = allLanguage.filter(lang => lang.value === e.target.value);
+            if (res.length <= 0) {
+                this.language = allLanguage[0];
+            } else {
+                this.language = res[0];
+            }
+        },
 
-const fileInfo = ref<FileDef>({
-    name: "UNTITLED",
-    path: "",
-    folder: false,
-});
+        open(file: FileDef) {
+            this.opened = true;
+            this.disabled = true;
+            this.fileInfo = file;
+            this.$root.emitAgent(this.endpoint, "getFile", this.stackName, file.path, (res) => {
+                this.code = res.content;
+                this.disabled = false;
+            });
+        },
 
-const languageChange = (e) => {
-    const res = allLanguage.filter(lang => lang.value === e.target.value);
-    if (res.length <= 0) {
-        language.value = allLanguage[0];
-    } else {
-        language.value = res[0];
+        close() {
+            this.opened = false;
+        },
+
+        highlighter(code) {
+            return highlight(code, this.language.lang, this.language.value);
+        },
     }
-};
-
-const open = (file: FileDef) => {
-    opened.value = true;
-    fileInfo.value = file;
-};
-
-const close = () => {
-    opened.value = false;
-};
-
-defineExpose({ open });
-
-const highlighter = (code) => {
-    return highlight(code, language.value.lang, language.value.value);
-};
+});
 </script>
 
 <template>
@@ -79,7 +102,7 @@ const highlighter = (code) => {
                 </select>
             </div>
             <div class="editor-wrapper">
-                <PrismEditor v-model="code" class="my-editor" :highlight="highlighter" line-numbers />
+                <PrismEditor v-model="code" class="my-editor" :readonly="disabled" :highlight="highlighter" line-numbers />
             </div>
         </div>
     </div>

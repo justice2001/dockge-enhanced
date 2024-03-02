@@ -547,4 +547,27 @@ export class Stack {
         }
 
     }
+
+    async listFiles(p: string) {
+        const dataDir = path.join(this.dataDir, p);
+        const files = await fsAsync.readdir(dataDir);
+        const filePromises = files.map(async file => {
+            const filePath = path.join(dataDir, file);
+            const stats = await fsAsync.stat(filePath);
+            return {
+                name: file,
+                path: path.join(p, file),
+                folder: stats.isDirectory(),
+            };
+        });
+        return Promise.all(filePromises);
+    }
+
+    async getFile(p: string) {
+        const file = path.join(this.dataDir, p);
+        console.log(file);
+        const content = await fsAsync.readFile(file, "utf-8");
+        log.debug("file", content);
+        return content;
+    }
 }

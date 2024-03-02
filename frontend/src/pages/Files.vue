@@ -1,10 +1,11 @@
 <script lang="ts">
 import { defineComponent } from "vue";
-import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { log } from "../../../backend/log";
 
 export default defineComponent({
     name: "Files",
-    components: {FontAwesomeIcon},
+    components: { FontAwesomeIcon },
     data() {
         return {
             files: [
@@ -27,6 +28,16 @@ export default defineComponent({
         stackName() {
             return this.$route.params.stackName;
         },
+
+        endpoint() {
+            return this.$route.params.endpoint || "";
+        },
+    },
+    mounted() {
+        this.$root.emitAgent(this.endpoint, "listDir", "homepage", "/", (res) => {
+            console.log(res.files);
+            this.files = res.files;
+        });
     },
     methods: {
         open(file) {
@@ -38,7 +49,7 @@ export default defineComponent({
                 this.$refs.fileEditor.open(file);
             }
         },
-    }
+    },
 });
 </script>
 
@@ -86,7 +97,7 @@ export default defineComponent({
                 />
             </div>
 
-            <FileEditor ref="fileEditor" />
+            <FileEditor :endpoint="endpoint" :stack-name="stackName" ref="fileEditor" />
         </div>
     </transition>
 </template>
