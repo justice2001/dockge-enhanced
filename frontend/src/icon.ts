@@ -53,7 +53,7 @@ import {
     faCertificate,
     faTerminal, faWarehouse, faHome, faRocket,
     faRotate,
-    faCloudArrowDown, faArrowsRotate, faQuestion,
+    faCloudArrowDown, faArrowsRotate, faQuestion, faFolder, faFloppyDisk, faPaste, faScissors,
 } from "@fortawesome/free-solid-svg-icons";
 
 library.add(
@@ -110,6 +110,12 @@ library.add(
     faCloudArrowDown,
     faArrowsRotate,
     faQuestion,
+    faFolder,
+    faFile,
+    faFloppyDisk,
+    faTrash,
+    faPaste,
+    faScissors,
 );
 
 export { FontAwesomeIcon };

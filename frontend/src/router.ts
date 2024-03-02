@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from "vue-router";
+import {createRouter, createWebHistory, RouteRecordRaw} from "vue-router";
 
 import Layout from "./layouts/Layout.vue";
 import Setup from "./pages/Setup.vue";
@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard.vue";
 import DashboardHome from "./pages/DashboardHome.vue";
 import Console from "./pages/Console.vue";
 import Compose from "./pages/Compose.vue";
+import Files from "./pages/Files.vue";
 import ContainerTerminal from "./pages/ContainerTerminal.vue";
 
 const Settings = () => import("./pages/Settings.vue");
@@ -16,7 +17,7 @@ import General from "./components/settings/General.vue";
 const Security = () => import("./components/settings/Security.vue");
 import About from "./components/settings/About.vue";
 
-const routes = [
+const routes : RouteRecordRaw[] = [
     {
         path: "/empty",
         component: Layout,
@@ -41,6 +42,10 @@ const routes = [
                             {
                                 path: "/compose/:stackName",
                                 component: Compose,
+                            },
+                            {
+                                path: "/files/:stackName",
+                                component: Files,
                             },
                             {
                                 path: "/terminal/:stackName/:serviceName/:type",

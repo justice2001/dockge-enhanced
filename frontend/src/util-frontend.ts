@@ -186,3 +186,9 @@ export function getToastErrorTimeout() {
     return errorTimeout;
 }
 
+export declare interface FileDef {
+    name: string;
+    path: string;
+    folder: boolean;
+}
+

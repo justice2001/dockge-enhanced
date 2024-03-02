@@ -46,6 +46,11 @@
                         {{ $t("stopStack") }}
                     </button>
 
+                    <RouterLink class="btn btn-normal" :to="filesLink">
+                        <font-awesome-icon icon="folder" class="me-1" />
+                        {{ $t("manageData") }}
+                    </RouterLink>
+
                     <BDropdown right text="" variant="normal">
                         <BDropdownItem @click="downStack">
                             <font-awesome-icon icon="stop" class="me-1" />
@@ -314,6 +319,10 @@ export default {
         };
     },
     computed: {
+
+        filesLink() {
+            return `/files/${this.stack.name}`;
+        },
 
         endpointDisplay() {
             return this.$root.endpointDisplayFunction(this.endpoint);
