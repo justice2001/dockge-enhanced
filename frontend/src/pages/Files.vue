@@ -86,7 +86,7 @@ export default defineComponent({
                         {{ $t("newFolder") }}
                     </button>
                 </div>
-                <div v-if="selected.length > 0" class="btn-group">
+                <div v-if="selected.length > 0 && !selected.includes('..')" class="btn-group">
                     <button class="btn btn-dark">
                         <font-awesome-icon icon="scissors" />
                         {{ $t("cut") }}

@@ -9,6 +9,7 @@ import "prismjs/components/prism-yaml";
 
 import { defineComponent } from "vue";
 import { FileDef } from "../util-frontend";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 
 const allLanguage = [
     {
@@ -26,6 +27,7 @@ const allLanguage = [
 export default defineComponent({
     name: "FileEditor",
     components: {
+        FontAwesomeIcon,
         PrismEditor,
     },
     props: {
@@ -55,6 +57,7 @@ export default defineComponent({
                 folder: false,
             },
             edited: false,
+            fullScreen: false,
         };
     },
     methods: {
@@ -110,12 +113,15 @@ export default defineComponent({
 
 <template>
     <div v-if="opened" class="editor-mask">
-        <div class="editor shadow-box mb-3">
+        <div class="editor shadow-box mb-3" :class="{fullscreen: fullScreen}">
             <div class="title">{{ fileInfo.name }} <span v-if="edited">(Edited)</span> </div>
             <button class="btn-close" @click="close" />
             <div class="operation">
                 <div class="btn-group">
                     <button class="btn btn-dark" @click="save"><font-awesome-icon icon="floppy-disk" /></button>
+                    <button class="btn btn-dark" @click="fullScreen = !fullScreen">
+                        <font-awesome-icon :icon="fullScreen ? 'compress' : 'expand'" />
+                    </button>
                 </div>
                 <select :value="language.value" class="form-select ms-2" @change="languageChange">
                     <option v-for="lang in allLanguage" :key="lang.value" :value="lang.value">{{ lang.label }}</option>
@@ -154,6 +160,11 @@ export default defineComponent({
         display: flex;
         flex-direction: column;
         overflow: hidden;
+
+        &.fullscreen {
+            width: 100vw;
+            height: 100vh;
+        }
 
         & .btn-close {
             position: absolute;
