@@ -30,10 +30,10 @@ export default defineComponent({
 
         newFileLabel() {
             return this.newFileData.isFolder ? {
-                title: "createFolder",
+                title: "newFolder",
                 placeholder: "folderName",
             } : {
-                title: "createFile",
+                title: "newFile",
                 placeholder: "fileName",
             };
         },

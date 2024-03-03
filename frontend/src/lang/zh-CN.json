@@ -121,5 +121,7 @@
     "cut": "剪切",
     "copy": "复制",
     "paste": "粘贴",
-    "noData": "无数据"
+    "noData": "无数据",
+    "fileName": "文件名",
+    "folderName": "文件夹名称"
 }

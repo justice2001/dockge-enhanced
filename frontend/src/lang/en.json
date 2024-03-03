@@ -121,5 +121,7 @@
     "cut": "Cut",
     "copy": "Copy",
     "paste": "Paste",
-    "noData": "No Data"
+    "noData": "No Data",
+    "fileName": "File Name",
+    "folderName": "Folder Name"
 }
