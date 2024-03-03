@@ -1,27 +1,32 @@
 <script lang="ts">
 import { highlight, languages } from "prismjs/components/prism-core";
 import { PrismEditor } from "vue-prism-editor";
-import "prismjs/themes/prism-dark.css";
+import "prismjs/themes/prism-tomorrow.css";
 import "vue-prism-editor/dist/prismeditor.min.css";
-
-import "prismjs/components/prism-json.js";
-import "prismjs/components/prism-yaml";
 
 import { defineComponent } from "vue";
 import { FileDef } from "../util-frontend";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { Modal } from "bootstrap";
+import {getCompatibleLanguage, getFileExtension, languageList} from "../file-utils";
+import {log} from "../../../backend/log";
 
 const allLanguage = [
     {
         label: "YAML",
         value: "yaml",
-        lang: languages.yaml
+        lang: languages.yaml,
+        ext: [ "yaml", "yml" ]
     },
     {
         label: "Json",
         value: "json",
         lang: languages.json
+    },
+    {
+        label: "Toml",
+        value: "toml",
+        lang: languages.toml
     }
 ];
 
@@ -43,7 +48,7 @@ export default defineComponent({
     },
     data() {
         return {
-            allLanguage: allLanguage,
+            allLanguage: languageList,
             code: "",
             opened: false,
             disabled: false,
@@ -76,11 +81,11 @@ export default defineComponent({
         },
 
         open(file: FileDef) {
-            this.opened = true;
             this.model.show();
             this.disabled = true;
             this.fileInfo = file;
-            this.setPageScroll(false);
+            const ext = getFileExtension(file.name);
+            this.language = getCompatibleLanguage(ext);
             this.$root.emitAgent(this.endpoint, "getFile", this.stackName, file.path, (res) => {
                 this.code = res.content;
                 this.disabled = false;
@@ -89,7 +94,6 @@ export default defineComponent({
 
         close() {
             this.model.hide();
-            this.setPageScroll(true);
         },
 
         highlighter(code) {
@@ -104,15 +108,6 @@ export default defineComponent({
                 }
             });
         },
-
-        setPageScroll(scroll: boolean = false) {
-            const classList = document.getElementsByTagName("body")[0].classList;
-            if (scroll) {
-                classList.remove("no-scroll");
-            } else {
-                classList.add("no-scroll");
-            }
-        }
     }
 });
 </script>
@@ -125,7 +120,7 @@ export default defineComponent({
                     <h5 class="title">{{ fileInfo.name }} <span v-if="edited">(Edited)</span> </h5>
                     <button type="button" class="btn-close" @click="close" />
                 </div>
-                <div class="modal-body">
+                <div class="modal-body d-flex flex-column overflow-hidden">
                     <div class="operation">
                         <div class="btn-group">
                             <button class="btn btn-dark" @click="save"><font-awesome-icon icon="floppy-disk" /></button>
@@ -137,7 +132,7 @@ export default defineComponent({
                             <option v-for="lang in allLanguage" :key="lang.value" :value="lang.value">{{ lang.label }}</option>
                         </select>
                     </div>
-                    <div class="editor-wrapper">
+                    <div class="editor-wrapper shadow-box">
                         <PrismEditor
                             v-model="code"
                             class="my-editor"
@@ -173,6 +168,7 @@ export default defineComponent({
     }
 
     & .editor-wrapper {
+        background: #2c2f38 !important;
         flex: 1;
         overflow: auto;
         margin-top: 10px;
@@ -180,7 +176,7 @@ export default defineComponent({
 
     & .my-editor {
         /* we dont use `language-` classes anymore so thats why we need to add background and text color manually */
-        background: #2d2d2d;
+        background: #2c2f38;
         color: #ccc;
 
         /* you must provide font-family font-size line-height. Example: */
@@ -188,6 +184,7 @@ export default defineComponent({
         font-size: 14px;
         line-height: 1.5;
         min-height: 50vh;
+        overflow: auto;
     }
 }
 </style>
