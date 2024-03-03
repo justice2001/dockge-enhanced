@@ -7,10 +7,8 @@ import "vue-prism-editor/dist/prismeditor.min.css";
 import "prismjs/components/prism-json.js";
 import "prismjs/components/prism-yaml";
 
-import { defineComponent, ref } from "vue";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { defineComponent } from "vue";
 import { FileDef } from "../util-frontend";
-import {log} from "../../../backend/log";
 
 const allLanguage = [
     {
@@ -73,6 +71,7 @@ export default defineComponent({
             this.opened = true;
             this.disabled = true;
             this.fileInfo = file;
+            this.setPageScroll(false);
             this.$root.emitAgent(this.endpoint, "getFile", this.stackName, file.path, (res) => {
                 this.code = res.content;
                 this.disabled = false;
@@ -81,6 +80,7 @@ export default defineComponent({
 
         close() {
             this.opened = false;
+            this.setPageScroll(true);
         },
 
         highlighter(code) {
@@ -94,6 +94,15 @@ export default defineComponent({
                     this.edited = false;
                 }
             });
+        },
+
+        setPageScroll(scroll: boolean = false) {
+            const classList = document.getElementsByTagName("body")[0].classList;
+            if (scroll) {
+                classList.remove("no-scroll");
+            } else {
+                classList.add("no-scroll");
+            }
         }
     }
 });

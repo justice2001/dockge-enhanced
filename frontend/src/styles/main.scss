@@ -683,6 +683,10 @@ code {
     color: $dark-font-color3;
 }
 
+.no-scroll {
+    overflow: hidden;
+}
+
 // Vue Prism Editor bug - workaround
 // https://github.com/koca/vue-prism-editor/issues/87
 /*
