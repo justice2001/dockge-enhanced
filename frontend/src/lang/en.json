@@ -120,5 +120,6 @@
     "rename": "Rename",
     "cut": "Cut",
     "copy": "Copy",
-    "paste": "Paste"
+    "paste": "Paste",
+    "noData": "No Data"
 }

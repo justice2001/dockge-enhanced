@@ -10,22 +10,9 @@ export default defineComponent({
     components: { FontAwesomeIcon },
     data() {
         return {
-            files: [
-                { name: "111.doc",
-                    path: "/opt/docker/homepage/111.doc",
-                    folder: false },
-                { name: "data",
-                    path: "/opt/docker/homepage/data",
-                    folder: true },
-                { name: "config",
-                    path: "/opt/docker/homepage/config",
-                    folder: true },
-                { name: "icons",
-                    path: "/opt/docker/homepage/icons",
-                    folder: true },
-            ],
+            files: [],
             selected: [],
-            currentPath: ""
+            currentPath: "/"
         };
     },
     computed: {
@@ -108,6 +95,10 @@ export default defineComponent({
                 </button>
             </div>
             <div class="shadow-box mb-3 stack-list mt-3">
+                <div v-if="files.length < 1" class="d-flex flex-column align-items-center my-5">
+                    <FontAwesomeIcon icon="box" class="empty-icon" />
+                    <h2 class="mt-4">{{ $t("noData") }}</h2>
+                </div>
                 <FileItem
                     v-for="(file, idx) in files"
                     :key="idx"
@@ -126,5 +117,9 @@ export default defineComponent({
 .tips {
     font-size: 0.8rem;
     color: #6c757d;
+}
+
+.empty-icon {
+    font-size: 60px;
 }
 </style>
