@@ -12,7 +12,11 @@ export default defineComponent({
         return {
             files: [],
             selected: [],
-            currentPath: "/"
+            currentPath: "/",
+            newFileData: {
+                isFolder: false,
+                fileName: "",
+            },
         };
     },
     computed: {
@@ -22,6 +26,16 @@ export default defineComponent({
 
         endpoint() {
             return this.$route.params.endpoint || "";
+        },
+
+        newFileLabel() {
+            return this.newFileData.isFolder ? {
+                title: "createFolder",
+                placeholder: "folderName",
+            } : {
+                title: "createFile",
+                placeholder: "fileName",
+            };
         },
     },
     mounted() {
@@ -65,7 +79,30 @@ export default defineComponent({
                 this.currentPath = dir;
                 this.files = res.files;
             });
-        }
+        },
+
+        openNewFileModel(isFolder: boolean = false) {
+            this.newFileData.isFolder = isFolder;
+            this.newFileData.fileName = "";
+            this.newFileData.fileName = "";
+            this.$refs.createFileModal.show();
+        },
+
+        newFile() {
+            // Check file
+            const filter = this.files.filter(f => f.name === this.newFileData.fileName);
+            if (filter.length > 0) {
+                this.$root.toastError("File Exist");
+                return;
+            }
+            this.$root.emitAgent(this.endpoint, "createFile", this.stackName, this.currentPath, this.newFileData.isFolder
+                , this.newFileData.fileName, (res) => {
+                    if (res.ok) {
+                        this.$root.toastSuccess("Created");
+                        this.loadDir(this.currentPath);
+                    }
+                });
+        },
     },
 });
 </script>
@@ -77,11 +114,11 @@ export default defineComponent({
             <p class="tips">这里只会展示位于 ${DATA} (/opt/docker/[stackName]) 目录的文件</p>
             <div>
                 <div class="btn-group me-2">
-                    <button class="btn btn-dark">
+                    <button class="btn btn-dark" @click="openNewFileModel(false)">
                         <font-awesome-icon icon="file" />
                         {{ $t("newFile") }}
                     </button>
-                    <button class="btn btn-dark">
+                    <button class="btn btn-dark" @click="openNewFileModel(true)">
                         <font-awesome-icon icon="folder" />
                         {{ $t("newFolder") }}
                     </button>
@@ -124,6 +161,12 @@ export default defineComponent({
             </div>
 
             <FileEditor ref="fileEditor" :endpoint="endpoint" :stack-name="stackName" />
+            <Confirm ref="createFileModal" :title="$t(newFileLabel.title)" @yes="newFile">
+                <input
+                    v-model="newFileData.fileName" class="form-control"
+                    :placeholder="$t(newFileLabel.placeholder)"
+                />
+            </Confirm>
         </div>
     </transition>
 </template>

@@ -74,6 +74,33 @@ export class FileSocketHandler extends AgentSocketHandler {
                 }
             }
         });
+
+        agentSocket.on("createFile", async (stackName: unknown, path: unknown, isFolder: unknown, fileName: unknown, callback) => {
+            try {
+                checkLogin(socket);
+
+                if (typeof(path) !== "string") {
+                    throw new ValidationError("Path must be a string");
+                }
+                if (typeof(isFolder) !== "boolean") {
+                    throw new ValidationError("isFolder must be a boolean");
+                }
+                if (typeof(fileName) !== "string") {
+                    throw new ValidationError("File Name must be a string");
+                }
+
+                const stack = await this.getStack(server, stackName);
+                await stack.newFile(path, fileName, isFolder);
+
+                callbackResult({
+                    ok: true,
+                }, callback);
+            } catch (e) {
+                if (e instanceof Error) {
+                    log.warn("agent", e.message);
+                }
+            }
+        });
     }
 
     async getStack(server : DockgeServer, stackName: unknown) {

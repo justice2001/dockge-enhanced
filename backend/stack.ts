@@ -585,4 +585,15 @@ export class Stack {
         await fsAsync.writeFile(f, content);
         return true;
     }
+
+    async newFile(p: string, fileName: string, isFolder: boolean) {
+        const f = path.join(this.dataDir, p, fileName);
+        if (!await fileExists(f)) {
+            if (isFolder) {
+                await fsAsync.mkdir(f);
+            } else {
+                await fsAsync.writeFile(f, "");
+            }
+        }
+    }
 }

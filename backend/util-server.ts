@@ -52,6 +52,12 @@ export class ValidationError extends Error {
     }
 }
 
+export class FileAccessError extends Error {
+    constructor(message : string) {
+        super(message);
+    }
+}
+
 export function callbackError(error : unknown, callback : unknown) {
     if (typeof(callback) !== "function") {
         log.error("console", "Callback is not a function");
