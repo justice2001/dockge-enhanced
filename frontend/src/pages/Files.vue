@@ -28,13 +28,24 @@ export default defineComponent({
         this.loadDir("/");
     },
     methods: {
-        select(file) {
-            if (this.selected.length === 1 && file.name === this.selected[0] && Date.now() - lastSelectTime < 1000) {
-                console.log("Double Click");
-                this.open(file);
+        select(ev, file) {
+            const isMac = window.navigator.userAgent.toLowerCase().includes("mac");
+            if (isMac ? ev.metaKey : ev.ctrlKey) {
+                // 多选
+                if (this.selected.includes(file.name)) {
+                    this.selected = this.selected.filter((f) => f !== file.name);
+                } else {
+                    this.selected.push(file.name);
+                }
+            } else {
+                // 单选
+                if (this.selected.length === 1 && file.name === this.selected[0] && Date.now() - lastSelectTime < 1000) {
+                    console.log("Double Click");
+                    this.open(file);
+                }
+                this.selected = [ file.name ];
+                lastSelectTime = Date.now();
             }
-            this.selected = [ file.name ];
-            lastSelectTime = Date.now();
         },
 
         open(file) {
@@ -64,35 +75,39 @@ export default defineComponent({
         <div>
             <h1 class="mb-3">Data - {{ stackName }} - {{ currentPath }}</h1>
             <p class="tips">这里只会展示位于 ${DATA} (/opt/docker/[stackName]) 目录的文件</p>
-            <div class="btn-group">
-                <button class="btn btn-dark">
-                    <font-awesome-icon icon="file" />
-                    {{ $t("newFile") }}
-                </button>
-                <button class="btn btn-dark">
-                    <font-awesome-icon icon="folder" />
-                    {{ $t("newFolder") }}
-                </button>
-                <button class="btn btn-dark">
-                    <font-awesome-icon icon="scissors" />
-                    {{ $t("cut") }}
-                </button>
-                <button class="btn btn-dark">
-                    <font-awesome-icon icon="copy" />
-                    {{ $t("copy") }}
-                </button>
-                <button class="btn btn-dark">
-                    <font-awesome-icon icon="paste" />
-                    {{ $t("paste") }}
-                </button>
-                <button class="btn btn-dark">
-                    <font-awesome-icon icon="edit" />
-                    {{ $t("rename") }}
-                </button>
-                <button class="btn btn-danger">
-                    <font-awesome-icon icon="trash" />
-                    {{ $t("delete") }}
-                </button>
+            <div>
+                <div class="btn-group me-2">
+                    <button class="btn btn-dark">
+                        <font-awesome-icon icon="file" />
+                        {{ $t("newFile") }}
+                    </button>
+                    <button class="btn btn-dark">
+                        <font-awesome-icon icon="folder" />
+                        {{ $t("newFolder") }}
+                    </button>
+                </div>
+                <div v-if="selected.length > 0" class="btn-group">
+                    <button class="btn btn-dark">
+                        <font-awesome-icon icon="scissors" />
+                        {{ $t("cut") }}
+                    </button>
+                    <button class="btn btn-dark">
+                        <font-awesome-icon icon="copy" />
+                        {{ $t("copy") }}
+                    </button>
+                    <button class="btn btn-dark">
+                        <font-awesome-icon icon="paste" />
+                        {{ $t("paste") }}
+                    </button>
+                    <button v-if="selected.length < 2" class="btn btn-dark">
+                        <font-awesome-icon icon="edit" />
+                        {{ $t("rename") }}
+                    </button>
+                    <button class="btn btn-danger">
+                        <font-awesome-icon icon="trash" />
+                        {{ $t("delete") }}
+                    </button>
+                </div>
             </div>
             <div class="shadow-box mb-3 stack-list mt-3">
                 <div v-if="files.length < 1" class="d-flex flex-column align-items-center my-5">
@@ -104,7 +119,7 @@ export default defineComponent({
                     :key="idx"
                     :selected="selected.indexOf(file.name) > -1"
                     :file="file"
-                    @click="select(file)"
+                    @click="select($event, file)"
                 />
             </div>
 
