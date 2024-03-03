@@ -10,6 +10,7 @@ import "prismjs/components/prism-yaml";
 import { defineComponent } from "vue";
 import { FileDef } from "../util-frontend";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { Modal } from "bootstrap";
 
 const allLanguage = [
     {
@@ -58,7 +59,11 @@ export default defineComponent({
             },
             edited: false,
             fullScreen: false,
+            model: null,
         };
+    },
+    mounted() {
+        this.model = new Modal(this.$refs.editor);
     },
     methods: {
         languageChange(e) {
@@ -72,6 +77,7 @@ export default defineComponent({
 
         open(file: FileDef) {
             this.opened = true;
+            this.model.show();
             this.disabled = true;
             this.fileInfo = file;
             this.setPageScroll(false);
@@ -82,7 +88,7 @@ export default defineComponent({
         },
 
         close() {
-            this.opened = false;
+            this.model.hide();
             this.setPageScroll(true);
         },
 
@@ -112,81 +118,64 @@ export default defineComponent({
 </script>
 
 <template>
-    <div v-if="opened" class="editor-mask">
-        <div class="editor shadow-box mb-3" :class="{fullscreen: fullScreen}">
-            <div class="title">{{ fileInfo.name }} <span v-if="edited">(Edited)</span> </div>
-            <button class="btn-close" @click="close" />
-            <div class="operation">
-                <div class="btn-group">
-                    <button class="btn btn-dark" @click="save"><font-awesome-icon icon="floppy-disk" /></button>
-                    <button class="btn btn-dark" @click="fullScreen = !fullScreen">
-                        <font-awesome-icon :icon="fullScreen ? 'compress' : 'expand'" />
-                    </button>
+    <div ref="editor" class="editor modal fade" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-scrollable" :class="fullScreen ? 'modal-fullscreen' : 'modal-lg'">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="title">{{ fileInfo.name }} <span v-if="edited">(Edited)</span> </h5>
+                    <button type="button" class="btn-close" @click="close" />
                 </div>
-                <select :value="language.value" class="form-select ms-2" @change="languageChange">
-                    <option v-for="lang in allLanguage" :key="lang.value" :value="lang.value">{{ lang.label }}</option>
-                </select>
-            </div>
-            <div class="editor-wrapper">
-                <PrismEditor
-                    v-model="code"
-                    class="my-editor"
-                    :readonly="disabled"
-                    :highlight="highlighter"
-                    line-numbers
-                    @input="edited = true"
-                />
+                <div class="modal-body">
+                    <div class="operation">
+                        <div class="btn-group">
+                            <button class="btn btn-dark" @click="save"><font-awesome-icon icon="floppy-disk" /></button>
+                            <button class="btn btn-dark" @click="fullScreen = !fullScreen">
+                                <font-awesome-icon :icon="fullScreen ? 'compress' : 'expand'" />
+                            </button>
+                        </div>
+                        <select :value="language.value" class="form-select ms-2" @change="languageChange">
+                            <option v-for="lang in allLanguage" :key="lang.value" :value="lang.value">{{ lang.label }}</option>
+                        </select>
+                    </div>
+                    <div class="editor-wrapper">
+                        <PrismEditor
+                            v-model="code"
+                            class="my-editor"
+                            :readonly="disabled"
+                            :highlight="highlighter"
+                            line-numbers
+                            @input="edited = true"
+                        />
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <style scoped lang="scss">
-.editor-mask {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.4);
-    display: flex;
-    justify-content: center;
-    align-items: center;
+.editor {
+    & .modal-header {
+        padding-bottom: 0;
+    }
 
-    & .editor {
-        position: relative;
-        width: 50vw;
-        height: 80vh;
+    & .modal-body {
+        padding-top: 10px;
+    }
+
+    & .title {
+        text-align: center;
+    }
+
+    & .operation {
         display: flex;
-        flex-direction: column;
-        overflow: hidden;
+        align-items: center;
+    }
 
-        &.fullscreen {
-            width: 100vw;
-            height: 100vh;
-        }
-
-        & .btn-close {
-            position: absolute;
-            right: 10px;
-            top: 10px;
-        }
-
-        & .title {
-            text-align: center;
-        }
-
-        & .operation {
-            display: flex;
-            align-items: center;
-            margin-top: 10px;
-        }
-
-        & .editor-wrapper {
-            flex: 1;
-            overflow: auto;
-            margin-top: 10px;
-        }
+    & .editor-wrapper {
+        flex: 1;
+        overflow: auto;
+        margin-top: 10px;
     }
 
     & .my-editor {
@@ -198,6 +187,7 @@ export default defineComponent({
         font-family: Fira code, Fira Mono, Consolas, Menlo, Courier, monospace;
         font-size: 14px;
         line-height: 1.5;
+        min-height: 50vh;
     }
 }
 </style>
