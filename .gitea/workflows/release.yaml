@@ -1,0 +1,49 @@
+name: Build Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: debian-12
+    steps:
+      # Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Set up Node.js environment with Node.js 18.18.2
+      - name: Set up Node.js environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.18.2'
+
+      # Set up pnpm environment
+      - name: Set up pnpm environment
+        uses: pnpm/action-setup@v2
+        with:
+          version: '8'
+
+      - name: Install dependencies and build frontend
+        run: |
+          pnpm install
+          pnpm run build:frontend
+
+      # Log in to Docker Registry
+      - name: Log in to Docker Registry
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+          registry: ${{ secrets.REGISTRY_URL }}
+
+      # Build and push the Docker image
+      - name: Build and push the Docker image
+        run: |
+          docker build -t ${{ secrets.REGISTRY_URL }}/zhengyi/dockge:latest -t ${{ secrets.REGISTRY_URL }}/zhengyi/dockge:${{ github.event.release.tag_name }} --file ./docker/Dockerfile --push .
+
+      # Clean up Docker images
+      - name: Clean up Docker images
+        run: |
+          docker rmi ${{ secrets.REGISTRY_URL }}/zhengyi/dockge:latest
+          docker rmi ${{ secrets.REGISTRY_URL }}/zhengyi/dockge:${{ github.event.release.tag_name }}
