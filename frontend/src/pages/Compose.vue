@@ -86,6 +86,19 @@
                 ></Terminal>
             </transition>
 
+            <div v-if="stack.isManagedByDockge" v-show="!isEditMode">
+                <h4 class="mb-3">Terminal</h4>
+                <Terminal
+                    ref="combinedTerminal"
+                    class="mb-3 terminal"
+                    :name="combinedTerminalName"
+                    :endpoint="endpoint"
+                    :rows="combinedTerminalRows"
+                    :cols="combinedTerminalCols"
+                    style="height: 350px;"
+                ></Terminal>
+            </div>
+            
             <div v-if="stack.isManagedByDockge" class="row">
                 <div class="col-lg-6">
                     <!-- General -->
@@ -154,18 +167,18 @@
                     </div>
 
                     <!-- Combined Terminal Output -->
-                    <div v-show="!isEditMode">
-                        <h4 class="mb-3">Terminal</h4>
-                        <Terminal
-                            ref="combinedTerminal"
-                            class="mb-3 terminal"
-                            :name="combinedTerminalName"
-                            :endpoint="endpoint"
-                            :rows="combinedTerminalRows"
-                            :cols="combinedTerminalCols"
-                            style="height: 350px;"
-                        ></Terminal>
-                    </div>
+<!--                    <div v-show="!isEditMode">-->
+<!--                        <h4 class="mb-3">Terminal</h4>-->
+<!--                        <Terminal-->
+<!--                            ref="combinedTerminal"-->
+<!--                            class="mb-3 terminal"-->
+<!--                            :name="combinedTerminalName"-->
+<!--                            :endpoint="endpoint"-->
+<!--                            :rows="combinedTerminalRows"-->
+<!--                            :cols="combinedTerminalCols"-->
+<!--                            style="height: 350px;"-->
+<!--                        ></Terminal>-->
+<!--                    </div>-->
                 </div>
                 <div class="col-lg-6">
                     <h4 class="mb-3">{{ stack.composeFileName }}</h4>
