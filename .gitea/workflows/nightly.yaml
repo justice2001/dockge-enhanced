@@ -32,8 +32,8 @@ jobs:
       # Modify package.json version
       - name: Modify package.json version
         run: |
-          currentDate=$(date +'%Y.%m.%d')
-          sed -i "s/\"version\": \".*\"/\"version\": \"$currentDate.nightly\"/" package.json
+          buildNumber=${GITHUB_RUN_NUMBER:-0}
+          sed -i "s/\"version\": \".*\"/\"version\": \"\0.nightly.$buildNumber\"/" package.json
 
       - name: Install dependencies and build frontend
         run: |
