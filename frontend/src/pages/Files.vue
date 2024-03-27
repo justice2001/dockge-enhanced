@@ -17,6 +17,7 @@ export default defineComponent({
                 isFolder: false,
                 fileName: "",
             },
+            stack: {}
         };
     },
     computed: {
@@ -25,7 +26,7 @@ export default defineComponent({
         },
 
         endpoint() {
-            return this.$route.params.endpoint || "";
+            return this.stack.endpoint || this.$route.params.endpoint || "";
         },
 
         newFileLabel() {
@@ -103,6 +104,17 @@ export default defineComponent({
                     }
                 });
         },
+        
+        loadStack() {
+            this.processing = true;
+            this.$root.emitAgent(this.endpoint, "getStack", this.stack.name, (res) => {
+                if (res.ok) {
+                    this.stack = res.stack;
+                } else {
+                    this.$root.toastRes(res);
+                }
+            })
+        }
     },
 });
 </script>

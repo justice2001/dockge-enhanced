@@ -23,7 +23,7 @@
 
             <!-- TODO -->
             <div v-if="false" class="header-filter">
-                <!--<StackListFilter :filterState="filterState" @update-filter="updateFilter" />-->
+<!--                <StackListFilter :filterState="filterState" @update-filter="updateFilter" />-->
             </div>
 
             <!-- TODO: Selection Controls -->

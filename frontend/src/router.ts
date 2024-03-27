@@ -48,6 +48,10 @@ const routes : RouteRecordRaw[] = [
                                 component: Files,
                             },
                             {
+                                path: "/files/:stackName/:endpoint",
+                                component: Files,
+                            },
+                            {
                                 path: "/terminal/:stackName/:serviceName/:type",
                                 component: ContainerTerminal,
                                 name: "containerTerminal",

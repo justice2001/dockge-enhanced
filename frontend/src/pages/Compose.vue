@@ -330,7 +330,11 @@ export default {
     computed: {
 
         filesLink() {
-            return `/files/${this.stack.name}`;
+            if (this.stack.endpoint) {
+                return `/files/${this.stack.name}/${this.stack.endpoint}`;
+            } else {
+                return `/files/${this.stack.name}`;
+            }
         },
 
         endpointDisplay() {
