@@ -31,5 +31,5 @@ CMD ["bash", "-c", "node ./extra/clean-tsx-tmp.js && tsx ./backend/index.ts"]
 ############################################
 # Mark as Nightly
 ############################################
-FROM release AS nightly
-RUN pnpm run mark-as-nightly
+#FROM release AS nightly
+#RUN pnpm run mark-as-nightly

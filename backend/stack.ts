@@ -51,7 +51,7 @@ export class Stack {
                     this.dockgeExtra = {};
                 } else {
                     const js = doc.toJS();
-                    this.dockgeExtra = ("x-dockge" in js) ? js["x-dockge"] : {}
+                    this.dockgeExtra = js && ("x-dockge" in js) && js["x-dockge"] || {}
                 }
             }
         }
