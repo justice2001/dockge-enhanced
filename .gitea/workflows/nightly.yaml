@@ -28,17 +28,17 @@ jobs:
         with:
           version: '8'
 
+      - name: Install dependencies and build frontend
+        run: |
+          pnpm install
+          pnpm run build:frontend
+
       # Modify package.json version
       - name: Modify package.json version
         run: |
           buildNumber=${GITHUB_RUN_NUMBER:-0}
           version=$(grep -Po '"version": "\K[0-9.]+' package.json)
-          sed -i "s/\"version\": \"$version\"/\"version\": \"$version.build.$buildNumber\"/g" package.json
-
-      - name: Install dependencies and build frontend
-        run: |
-          pnpm install
-          pnpm run build:frontend
+          sed -i "s/\"version\": \"$version\"/\"version\": \"$version-nightly.$buildNumber\"/g" package.json
 
       # Log in to Docker Registry
       - name: Log in to Docker Registry
