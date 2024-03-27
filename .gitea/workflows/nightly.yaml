@@ -32,7 +32,8 @@ jobs:
       - name: Modify package.json version
         run: |
           buildNumber=${GITHUB_RUN_NUMBER:-0}
-          sed -i 's/"version": "[0-9.]*"/"version": "&.nightly.$buildNumber"/g' package.json
+          version=$(grep -Po '"version": "\K[0-9.]+' package.json)
+          sed -i "s/\"version\": \"$version\"/\"version\": \"$version.build.$buildNumber\"/g" package.json
 
       - name: Install dependencies and build frontend
         run: |
