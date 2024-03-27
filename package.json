@@ -5,12 +5,13 @@
     "engines": {
         "node": ">= 18.0.0 && <= 18.17.1"
     },
+    "packageManager": "pnpm@8.12.1",
     "scripts": {
         "fmt": "eslint \"**/*.{ts,vue}\" --fix",
         "lint": "eslint \"**/*.{ts,vue}\"",
         "check-ts": "tsc --noEmit",
         "start": "tsx ./backend/index.ts",
-        "dev": "concurrently -k -r \"wait-on tcp:5000 && pnpm run dev:backend \" \"pnpm run dev:frontend\"",
+        "dev": "concurrently -k -r \"wait-on tcp:5002 && pnpm run dev:backend \" \"pnpm run dev:frontend\"",
         "dev:backend": "cross-env NODE_ENV=development tsx watch --inspect ./backend/index.ts",
         "dev:frontend": "cross-env NODE_ENV=development vite --host --config ./frontend/vite.config.ts",
         "release-final": "tsx ./extra/test-docker.ts && tsx extra/update-version.ts && pnpm run build:frontend && npm run build:docker",
