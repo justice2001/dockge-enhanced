@@ -27,6 +27,7 @@ declare module 'vue' {
     Security: typeof import('./src/components/settings/Security.vue')['default']
     StackList: typeof import('./src/components/StackList.vue')['default']
     StackListItem: typeof import('./src/components/StackListItem.vue')['default']
+    Tag: typeof import('./src/components/Tag.vue')['default']
     Terminal: typeof import('./src/components/Terminal.vue')['default']
     TwoFADialog: typeof import('./src/components/TwoFADialog.vue')['default']
     Uptime: typeof import('./src/components/Uptime.vue')['default']

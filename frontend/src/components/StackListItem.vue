@@ -5,6 +5,9 @@
             <span>{{ stackName }}</span>
             <div v-if="$root.agentCount > 1" class="endpoint">{{ endpointDisplay }}</div>
         </div>
+        <div class="tags">
+            <Tag :name="tag" v-for="tag in stack.tags" />
+        </div>
     </router-link>
 </template>
 
@@ -149,10 +152,17 @@ export default {
     }
     .title {
         margin-top: -4px;
+        flex: 1;
     }
     .endpoint {
         font-size: 12px;
         color: $dark-font-color3;
+    }
+
+    .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
     }
 }
 

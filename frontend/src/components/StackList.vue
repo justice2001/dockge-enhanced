@@ -130,7 +130,7 @@ export default {
                     const loweredSearchText = this.searchText.toLowerCase();
                     searchTextMatch =
                         stack.name.toLowerCase().includes(loweredSearchText)
-                        || stack.tags.find(tag => tag.name.toLowerCase().includes(loweredSearchText)
+                        || stack.tags.find(tag => tag.toLowerCase().includes(loweredSearchText)
                             || tag.value?.toLowerCase().includes(loweredSearchText));
                 }
 
@@ -422,14 +422,6 @@ export default {
 
 .stack-item {
     width: 100%;
-}
-
-.tags {
-    margin-top: 4px;
-    padding-left: 67px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0;
 }
 
 .bottom-style {

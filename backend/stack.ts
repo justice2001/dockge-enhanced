@@ -1,7 +1,7 @@
 import { DockgeServer } from "./dockge-server";
 import fs, { promises as fsAsync } from "fs";
 import { log } from "./log";
-import yaml from "yaml";
+import yaml, {parseDocument} from "yaml";
 import { DockgeSocket, fileExists, ValidationError } from "./util-server";
 import path from "path";
 import {
@@ -29,6 +29,7 @@ export class Stack {
     protected _configFilePath?: string;
     protected _composeFileName: string = "compose.yaml";
     protected server: DockgeServer;
+    protected dockgeExtra: null | DockgeExtra = null;
 
     protected combinedTerminal? : Terminal;
 
@@ -39,6 +40,21 @@ export class Stack {
         this.server = server;
         this._composeYAML = composeYAML;
         this._composeENV = composeENV;
+        // Init Tags
+        if (this.isManagedByDockge) {
+            if (!this._composeYAML) {
+                this._composeYAML = this.composeYAML;
+            }
+            if (!this.dockgeExtra) {
+                const doc = parseDocument(this._composeYAML)
+                if (doc.errors.length > 0) {
+                    this.dockgeExtra = {};
+                } else {
+                    const js = doc.toJS();
+                    this.dockgeExtra = ("x-dockge" in js) ? js["x-dockge"] : {}
+                }
+            }
+        }
 
         if (!skipFSOperations) {
             // Check if compose file name is different from compose.yaml
@@ -79,10 +95,11 @@ export class Stack {
     }
 
     toSimpleJSON(endpoint : string) : object {
+        log.debug("DOCKGE EXTRA", this.dockgeExtra?.tags || [])
         return {
             name: this.name,
             status: this._status,
-            tags: [],
+            tags: this.dockgeExtra?.tags || [],
             isManagedByDockge: this.isManagedByDockge,
             composeFileName: this._composeFileName,
             endpoint,
@@ -596,4 +613,9 @@ export class Stack {
             }
         }
     }
+}
+
+interface DockgeExtra {
+    tags?: string[];
+    website?: string[]
 }

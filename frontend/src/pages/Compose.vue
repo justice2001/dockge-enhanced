@@ -164,21 +164,17 @@
                                 <ArrayInput name="urls" :display-name="$t('url')" placeholder="https://" object-type="x-dockge" />
                             </div>
                         </div>
+                        
+                        <div class="shadow-box big-padding mb-3">
+                            <!-- URLs -->
+                            <div class="mb-4">
+                                <label class="form-label">
+                                    {{ $tc("tags", 2) }}
+                                </label>
+                                <ArrayInput name="tags" :display-name="$t('tag')" placeholder="Tag Name" object-type="x-dockge" />
+                            </div>
+                        </div>
                     </div>
-
-                    <!-- Combined Terminal Output -->
-<!--                    <div v-show="!isEditMode">-->
-<!--                        <h4 class="mb-3">Terminal</h4>-->
-<!--                        <Terminal-->
-<!--                            ref="combinedTerminal"-->
-<!--                            class="mb-3 terminal"-->
-<!--                            :name="combinedTerminalName"-->
-<!--                            :endpoint="endpoint"-->
-<!--                            :rows="combinedTerminalRows"-->
-<!--                            :cols="combinedTerminalCols"-->
-<!--                            style="height: 350px;"-->
-<!--                        ></Terminal>-->
-<!--                    </div>-->
                 </div>
                 <div class="col-lg-6">
                     <h4 class="mb-3">{{ stack.composeFileName }}</h4>
