@@ -36,7 +36,7 @@ export const Socket = () => {
     const allowLoginDialog = ref(false);
     const username = ref(null);
     const composeTemplate = ref("");
-    const stackList = ref({});
+    const stackList = ref<Record<string, object>>({});
     // All stack list from all agents
     const allAgentStackList = ref<Record<string, object>>({});
     // online / offline / connecting
@@ -393,9 +393,15 @@ export const Socket = () => {
         socketIO,
         loggedIn,
         username,
+        composeTemplate,
         allowLoginDialog,
         usernameFirstChar,
         completeStackList,
+        stackList,
+        agentCount,
+        allAgentStackList,
+        info,
+        getSocket,
         logout,
         emitAgent
     };

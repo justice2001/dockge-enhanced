@@ -1,16 +1,16 @@
 <template>
     <div :class="classes">
-        <div v-if="!socket.socketIO.connected && ! socket.socketIO.firstConnect" class="lost-connection">
+        <div v-if="! socket.socketIO.value.connected && ! socket.socketIO.value.firstConnect" class="lost-connection">
             <div class="container-fluid">
-                {{ socket.socketIO.connectionErrorMsg }}
-                <div v-if="socket.socketIO.showReverseProxyGuide">
+                {{ socket.socketIO.value.connectionErrorMsg }}
+                <div v-if="socket.socketIO.value.showReverseProxyGuide">
                     {{ t("reverseProxyMsg1") }} <a href="https://github.com/louislam/uptime-kuma/wiki/Reverse-Proxy" target="_blank">{{ t("reverseProxyMsg2") }}</a>
                 </div>
             </div>
         </div>
 
         <!-- Desktop header -->
-        <header v-if="false && ! $root.isMobile" class="d-flex flex-wrap justify-content-center py-3 mb-3 border-bottom">
+        <header v-if="true || ! $root.isMobile" class="d-flex flex-wrap justify-content-center py-3 mb-3 border-bottom">
             <router-link to="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
                 <object class="bi me-2 ms-4" width="40" height="40" data="/icon.svg" />
                 <span class="fs-4 title">Dockge</span>
@@ -85,7 +85,7 @@
         </header>
 
         <main>
-            <div v-if="socket.socketIO.connecting" class="container mt-5">
+            <div v-if="socket.socketIO.value.connecting" class="container mt-5">
                 <h4>{{ t("connecting...") }}</h4>
             </div>
 
@@ -99,7 +99,7 @@
 import Login from "../components/Login.vue";
 import { useSocket } from "../sockets";
 import { useI18n } from "vue-i18n";
-import { computed } from "vue";
+import { computed, onMounted } from "vue";
 import { compareVersions } from "compare-versions";
 import { toastRes } from "../toast";
 import { useTheme } from "../theme";
@@ -111,14 +111,14 @@ const { t } = useI18n();
 // Theme or Mobile
 const classes = computed(() => {
     const classes = {};
-    classes[theme.theme] = true;
+    classes[theme.theme.value] = true;
     // classes["mobile"] = this.$root.isMobile;
     return classes;
 });
 
 const hasNewVersion = computed(() => {
-    if (socket.info.latestVersion && socket.info.version) {
-        return compareVersions(socket.info.latestVersion, socket.info.version) >= 1;
+    if (socket.info.value.latestVersion && socket.info.value.version) {
+        return compareVersions(socket.info.value.latestVersion, socket.info.value.version) >= 1;
     } else {
         return false;
     }
@@ -128,6 +128,10 @@ const scanFolder = () => {
         toastRes(res);
     });
 };
+
+onMounted(() => {
+    console.log(socket.socketIO.value);
+});
 </script>
 
 <style lang="scss" scoped>

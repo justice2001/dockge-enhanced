@@ -94,203 +94,192 @@
     <router-view ref="child" />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useI18n } from "vue-i18n";
+import {computed, nextTick, onBeforeUnmount, onMounted, ref, watch} from "vue";
+import {useSocket} from "../sockets";
+import {toastRes} from "../toast";
+import {useRouter} from "vue-router";
+import {statusNameShort} from "../../../common/util-common";
 const { t } = useI18n();
+const socket = useSocket();
+const router = useRouter();
 
-console.log(t("languageName"));
+withDefaults(defineProps<{
+    type: number
+}>(), {
+    type: 0
+});
 
-// export default {
-//     components: {
-//
-//     },
-//     props: {
-//         calculatedHeight: {
-//             type: Number,
-//             default: 0
-//         }
-//     },
-//     data() {
-//         return {
-//             page: 1,
-//             perPage: 25,
-//             initialPerPage: 25,
-//             paginationConfig: {
-//                 hideCount: true,
-//                 chunksNavigation: "scroll",
-//             },
-//             importantHeartBeatListLength: 0,
-//             displayedRecords: [],
-//             dockerRunCommand: "",
-//             showAgentForm: false,
-//             showRemoveAgentDialog: {},
-//             connectingAgent: false,
-//             agent: {
-//                 url: "http://",
-//                 username: "",
-//                 password: "",
-//             }
-//         };
-//     },
-//
-//     computed: {
-//         activeNum() {
-//             return this.getStatusNum("active");
-//         },
-//         inactiveNum() {
-//             return this.getStatusNum("inactive");
-//         },
-//         exitedNum() {
-//             return this.getStatusNum("exited");
-//         },
-//     },
-//
-//     watch: {
-//         perPage() {
-//             this.$nextTick(() => {
-//                 this.getImportantHeartbeatListPaged();
-//             });
-//         },
-//
-//         page() {
-//             this.getImportantHeartbeatListPaged();
-//         },
-//     },
-//
-//     mounted() {
-//         this.initialPerPage = this.perPage;
-//
-//         window.addEventListener("resize", this.updatePerPage);
-//         this.updatePerPage();
-//     },
-//
-//     beforeUnmount() {
-//         window.removeEventListener("resize", this.updatePerPage);
-//     },
-//
-//     methods: {
-//
-//         addAgent() {
-//             this.connectingAgent = true;
-//             this.$root.getSocket().emit("addAgent", this.agent, (res) => {
-//                 this.$root.toastRes(res);
-//
-//                 if (res.ok) {
-//                     this.showAgentForm = false;
-//                     this.agent = {
-//                         url: "http://",
-//                         username: "",
-//                         password: "",
-//                     };
-//                 }
-//
-//                 this.connectingAgent = false;
-//             });
-//         },
-//
-//         removeAgent(url) {
-//             this.$root.getSocket().emit("removeAgent", url, (res) => {
-//                 if (res.ok) {
-//                     this.$root.toastRes(res);
-//
-//                     let urlObj = new URL(url);
-//                     let endpoint = urlObj.host;
-//
-//                     // Remove the stack list and status list of the removed agent
-//                     delete this.$root.allAgentStackList[endpoint];
-//                 }
-//             });
-//         },
-//
-//         getStatusNum(statusName) {
-//             let num = 0;
-//
-//             for (let stackName in this.$root.completeStackList) {
-//                 const stack = this.$root.completeStackList[stackName];
-//                 if (statusNameShort(stack.status) === statusName) {
-//                     num += 1;
-//                 }
-//             }
-//             return num;
-//         },
-//
-//         convertDockerRun() {
-//             if (this.dockerRunCommand.trim() === "docker run") {
-//                 throw new Error("Please enter a docker run command");
-//             }
-//
-//             // composerize is working in dev, but after "vite build", it is not working
-//             // So pass to backend to do the conversion
-//             this.$root.getSocket().emit("composerize", this.dockerRunCommand, (res) => {
-//                 if (res.ok) {
-//                     this.$root.composeTemplate = res.composeTemplate;
-//                     this.$router.push("/compose");
-//                 } else {
-//                     this.$root.toastRes(res);
-//                 }
-//             });
-//         },
-//
-//         /**
-//          * Updates the displayed records when a new important heartbeat arrives.
-//          * @param {object} heartbeat - The heartbeat object received.
-//          * @returns {void}
-//          */
-//         onNewImportantHeartbeat(heartbeat) {
-//             if (this.page === 1) {
-//                 this.displayedRecords.unshift(heartbeat);
-//                 if (this.displayedRecords.length > this.perPage) {
-//                     this.displayedRecords.pop();
-//                 }
-//                 this.importantHeartBeatListLength += 1;
-//             }
-//         },
-//
-//         /**
-//          * Retrieves the length of the important heartbeat list for all monitors.
-//          * @returns {void}
-//          */
-//         getImportantHeartbeatListLength() {
-//             this.$root.getSocket().emit("monitorImportantHeartbeatListCount", null, (res) => {
-//                 if (res.ok) {
-//                     this.importantHeartBeatListLength = res.count;
-//                     this.getImportantHeartbeatListPaged();
-//                 }
-//             });
-//         },
-//
-//         /**
-//          * Retrieves the important heartbeat list for the current page.
-//          * @returns {void}
-//          */
-//         getImportantHeartbeatListPaged() {
-//             const offset = (this.page - 1) * this.perPage;
-//             this.$root.getSocket().emit("monitorImportantHeartbeatListPaged", null, offset, this.perPage, (res) => {
-//                 if (res.ok) {
-//                     this.displayedRecords = res.data;
-//                 }
-//             });
-//         },
-//
-//         /**
-//          * Updates the number of items shown per page based on the available height.
-//          * @returns {void}
-//          */
-//         updatePerPage() {
-//             const tableContainer = this.$refs.tableContainer;
-//             const tableContainerHeight = tableContainer.offsetHeight;
-//             const availableHeight = window.innerHeight - tableContainerHeight;
-//             const additionalPerPage = Math.floor(availableHeight / 58);
-//
-//             if (additionalPerPage > 0) {
-//                 this.perPage = Math.max(this.initialPerPage, this.perPage + additionalPerPage);
-//             } else {
-//                 this.perPage = this.initialPerPage;
-//             }
-//
-//         },
-//     },
-// };
+const tableContainer = ref();
+
+const page = ref<number>(1);
+const perPage = ref<number>(25);
+const initialPerPage = ref<number>(25);
+const paginationConfig = ref({
+    hideCount: true,
+    chunksNavigation: "scroll",
+});
+const importantHeartBeatListLength = ref(0);
+const displayedRecords = ref([]);
+const dockerRunCommand = ref("");
+const showAgentForm = ref(false);
+const showRemoveAgentDialog = ref({});
+const connectingAgent = ref(false);
+const agent = ref({
+    url: "http://",
+    username: "",
+    password: "",
+});
+const activeNum = computed(() => {
+    return getStatusNum("active");
+});
+
+const inactiveNum = computed(() => {
+    return getStatusNum("inactive");
+});
+
+const exitedNum = computed(() => {
+    return getStatusNum("exited");
+});
+
+watch(perPage, () => {
+    nextTick(() => {
+        getImportantHeartbeatListPaged();
+    });
+});
+
+watch(page, () => {
+    getImportantHeartbeatListPaged();
+});
+
+onMounted(() => {
+    initialPerPage.value = perPage.value;
+
+    window.addEventListener("resize", updatePerPage);
+    updatePerPage();
+});
+onBeforeUnmount(() => {
+    window.removeEventListener("resize", updatePerPage);
+});
+
+const addAgent = () => {
+    connectingAgent.value = true;
+    socket.getSocket().emit("addAgent", agent.value, (res) => {
+        toastRes(res);
+
+        if (res.ok) {
+            showAgentForm.value = false;
+            agent.value = {
+                url: "http://",
+                username: "",
+                password: "",
+            };
+        }
+
+        connectingAgent.value = false;
+    });
+};
+
+const removeAgent = (url: string) => {
+    socket.getSocket().emit("removeAgent", url, (res) => {
+        if (res.ok) {
+            toastRes(res);
+
+            let urlObj = new URL(url);
+            let endpoint = urlObj.host;
+
+            // Remove the stack list and status list of the removed agent
+            delete socket.allAgentStackList.value[endpoint];
+        }
+    });
+};
+
+const getStatusNum = (statusName: string) => {
+    let num = 0;
+
+    for (let stackName in socket.completeStackList.value) {
+        const stack = socket.completeStackList.value[stackName];
+        if (statusNameShort(stack.status) === statusName) {
+            num += 1;
+        }
+    }
+    return num;
+};
+
+const convertDockerRun = () => {
+    if (dockerRunCommand.value.trim() === "docker run") {
+        throw new Error("Please enter a docker run command");
+    }
+
+    // composerize is working in dev, but after "vite build", it is not working
+    // So pass to backend to do the conversion
+    socket.getSocket().emit("composerize", dockerRunCommand.value, (res) => {
+        if (res.ok) {
+            socket.composeTemplate = res.composeTemplate;
+            router.push("/compose");
+        } else {
+            toastRes(res);
+        }
+    });
+};
+
+/**
+ * Updates the displayed records when a new important heartbeat arrives.
+ * @param {object} heartbeat - The heartbeat object received.
+ * @returns {void}
+ */
+const onNewImportantHeartbeat = (heartbeat: object): void => {
+    if (page.value === 1) {
+        displayedRecords.value.unshift(heartbeat);
+        if (displayedRecords.value.length > perPage.value) {
+            displayedRecords.value.pop();
+        }
+        importantHeartBeatListLength.value += 1;
+    }
+};
+
+/**
+ * Retrieves the length of the important heartbeat list for all monitors.
+ * @returns {void}
+ */
+const getImportantHeartbeatListLength = (): void => {
+    socket.getSocket().emit("monitorImportantHeartbeatListCount", null, (res) => {
+        if (res.ok) {
+            importantHeartBeatListLength.value = res.count;
+            getImportantHeartbeatListPaged();
+        }
+    });
+};
+
+/**
+ * Retrieves the important heartbeat list for the current page.
+ * @returns {void}
+ */
+const getImportantHeartbeatListPaged = (): void => {
+    const offset = (page.value - 1) * perPage.value;
+    socket.getSocket().emit("monitorImportantHeartbeatListPaged", null, offset, perPage.value, (res) => {
+        if (res.ok) {
+            displayedRecords.value = res.data;
+        }
+    });
+};
+
+/**
+ * Updates the number of items shown per page based on the available height.
+ * @returns {void}
+ */
+const updatePerPage = (): void => {
+    const tableContainerHeight = tableContainer.value?.offsetHeight;
+    const availableHeight = window.innerHeight - tableContainerHeight;
+    const additionalPerPage = Math.floor(availableHeight / 58);
+
+    if (additionalPerPage > 0) {
+        perPage.value = Math.max(initialPerPage.value, perPage.value + additionalPerPage);
+    } else {
+        perPage.value = initialPerPage.value;
+    }
+};
 </script>
 
 <style lang="scss" scoped>

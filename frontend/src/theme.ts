@@ -1,4 +1,4 @@
-import { computed, inject, ref, watch } from "vue";
+import {computed, inject, onMounted, ref, watch} from "vue";
 import { useRoute } from "vue-router";
 
 export declare type SystemTheme = "dark" | "light" | "auto"
@@ -41,6 +41,15 @@ export const theme = () => {
 
     watch(theme, (to, from) => {
         document.body.classList.remove(from);
+        document.body.classList.add(theme.value);
+        updateThemeColorMeta();
+    });
+
+    onMounted(() => {
+        if (! userTheme.value) {
+            userTheme.value = "dark";
+        }
+
         document.body.classList.add(theme.value);
         updateThemeColorMeta();
     });
