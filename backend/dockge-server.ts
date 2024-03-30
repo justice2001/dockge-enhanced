@@ -38,6 +38,7 @@ import { AgentSocket } from "../common/agent-socket";
 import { ManageAgentSocketHandler } from "./socket-handlers/manage-agent-socket-handler";
 import { Terminal } from "./terminal";
 import {FileSocketHandler} from "./agent-socket-handlers/file-socket-handler";
+import {DockerImageSocketHandler} from "./agent-socket-handlers/docker-image-socket-handler";
 
 export class DockgeServer {
     app : Express;
@@ -71,6 +72,7 @@ export class DockgeServer {
         new DockerSocketHandler(),
         new TerminalSocketHandler(),
         new FileSocketHandler(),
+        new DockerImageSocketHandler(),
     ];
 
     /**

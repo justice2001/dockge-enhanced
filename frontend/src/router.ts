@@ -1,4 +1,4 @@
-import {createRouter, createWebHistory, RouteRecordRaw} from "vue-router";
+import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 
 import Layout from "./layouts/Layout.vue";
 import Setup from "./pages/Setup.vue";
@@ -16,6 +16,7 @@ import Appearance from "./components/settings/Appearance.vue";
 import General from "./components/settings/General.vue";
 const Security = () => import("./components/settings/Security.vue");
 import About from "./components/settings/About.vue";
+import Image from "./pages/Image.vue";
 
 const routes : RouteRecordRaw[] = [
     {
@@ -50,6 +51,10 @@ const routes : RouteRecordRaw[] = [
                             {
                                 path: "/files/:stackName/:endpoint",
                                 component: Files,
+                            },
+                            {
+                                path: "/images",
+                                component: Image
                             },
                             {
                                 path: "/terminal/:stackName/:serviceName/:type",

@@ -104,7 +104,7 @@ export default defineComponent({
                     }
                 });
         },
-        
+
         loadStack() {
             this.processing = true;
             this.$root.emitAgent(this.endpoint, "getStack", this.stack.name, (res) => {

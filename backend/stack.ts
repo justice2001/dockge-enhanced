@@ -1,7 +1,7 @@
 import { DockgeServer } from "./dockge-server";
 import fs, { promises as fsAsync } from "fs";
 import { log } from "./log";
-import yaml, {parseDocument} from "yaml";
+import yaml, { parseDocument } from "yaml";
 import { DockgeSocket, fileExists, ValidationError } from "./util-server";
 import path from "path";
 import {
@@ -46,12 +46,12 @@ export class Stack {
                 this._composeYAML = this.composeYAML;
             }
             if (!this.dockgeExtra) {
-                const doc = parseDocument(this._composeYAML)
+                const doc = parseDocument(this._composeYAML);
                 if (doc.errors.length > 0) {
                     this.dockgeExtra = {};
                 } else {
                     const js = doc.toJS();
-                    this.dockgeExtra = js && ("x-dockge" in js) && js["x-dockge"] || {}
+                    this.dockgeExtra = js && ("x-dockge" in js) && js["x-dockge"] || {};
                 }
             }
         }
@@ -95,7 +95,6 @@ export class Stack {
     }
 
     toSimpleJSON(endpoint : string) : object {
-        log.debug("DOCKGE EXTRA", this.dockgeExtra?.tags || [])
         return {
             name: this.name,
             status: this._status,
