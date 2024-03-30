@@ -1,6 +1,7 @@
 import { currentLocale } from "../i18n";
 import { setPageLocale } from "../util-frontend";
-import { defineComponent } from "vue";
+import {defineComponent, onBeforeMount, ref, watch} from "vue";
+import {useI18n} from "vue-i18n";
 const langModules = import.meta.glob("../lang/*.json");
 
 export default defineComponent({

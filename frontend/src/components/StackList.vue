@@ -64,131 +64,121 @@
     </Confirm>
 </template>
 
-<script>
+<script setup lang="ts">
 import Confirm from "../components/Confirm.vue";
 import StackListItem from "../components/StackListItem.vue";
 import { CREATED_FILE, CREATED_STACK, EXITED, RUNNING, UNKNOWN } from "../../../common/util-common";
+import {computed, ref} from "vue";
+import {useSocket} from "../sockets";
 
-export default {
-    components: {
-        Confirm,
-        StackListItem,
-    },
-    props: {
-        /** Should the scrollbar be shown */
-        scrollbar: {
-            type: Boolean,
-        },
-    },
-    data() {
-        return {
-            searchText: "",
-            selectMode: false,
-            selectAll: false,
-            disableSelectAllWatcher: false,
-            selectedStacks: {},
-            windowTop: 0,
-            filterState: {
-                status: null,
-                active: null,
-                tags: null,
-            }
-        };
-    },
-    computed: {
+const socket = useSocket();
+
+const props = defineProps<{scrollbar: boolean}>()
+
+const searchText = ref<string>("");
+const selectMode = ref<boolean>(false);
+const selectAll = ref<boolean>(false);
+const disableSelectAllWatcher = ref<boolean>(false);
+const selectedStacks = ref({});
+const windowTop = ref<number>(0);
+const filterState = ref ({
+    status: null,
+    active: null,
+    tags: null,
+});
         /**
          * Improve the sticky appearance of the list by increasing its
          * height as user scrolls down.
          * Not used on mobile.
          * @returns {object} Style for stack list
          */
-        boxStyle() {
-            if (window.innerWidth > 550) {
-                return {
-                    height: `calc(100vh - 160px + ${this.windowTop}px)`,
-                };
-            } else {
-                return {
-                    height: "calc(100vh - 160px)",
-                };
+const boxStyle = computed(() => {
+    if (window.innerWidth > 550) {
+        return {
+            height: `calc(100vh - 160px + ${this.windowTop}px)`,
+        };
+    } else {
+        return {
+            height: "calc(100vh - 160px)",
+        };
+    }
+
+});
+
+/**
+ * Returns a sorted list of stacks based on the applied filters and search text.
+ * @returns {Array} The sorted list of stacks.
+ */
+const sortedStackList = computed(() => {
+    let result = Object.values(socket.completeStackList.value);
+
+    result = result.filter(stack => {
+        // filter by search text
+        // finds stack name, tag name or tag value
+        let searchTextMatch = true;
+        if (this.searchText !== "") {
+            const loweredSearchText = this.searchText.toLowerCase();
+            searchTextMatch =
+                stack.name.toLowerCase().includes(loweredSearchText)
+                || stack.tags.find(tag => tag.toLowerCase().includes(loweredSearchText)
+                    || tag.value?.toLowerCase().includes(loweredSearchText));
+        }
+
+        // filter by active
+        let activeMatch = true;
+        if (this.filterState.active != null && this.filterState.active.length > 0) {
+            activeMatch = this.filterState.active.includes(stack.active);
+        }
+
+        // filter by tags
+        let tagsMatch = true;
+        if (this.filterState.tags != null && this.filterState.tags.length > 0) {
+            tagsMatch = stack.tags.map(tag => tag.tag_id) // convert to array of tag IDs
+                .filter(stackTagId => this.filterState.tags.includes(stackTagId)) // perform Array Intersaction between filter and stack's tags
+                .length > 0;
+        }
+
+        return searchTextMatch && activeMatch && tagsMatch;
+    });
+
+    result.sort((m1, m2) => {
+
+        // sort by managed by dockge
+        if (m1.isManagedByDockge && !m2.isManagedByDockge) {
+            return -1;
+        } else if (!m1.isManagedByDockge && m2.isManagedByDockge) {
+            return 1;
+        }
+
+        // sort by status
+        if (m1.status !== m2.status) {
+            if (m2.status === RUNNING) {
+                return 1;
+            } else if (m1.status === RUNNING) {
+                return -1;
+            } else if (m2.status === EXITED) {
+                return 1;
+            } else if (m1.status === EXITED) {
+                return -1;
+            } else if (m2.status === CREATED_STACK) {
+                return 1;
+            } else if (m1.status === CREATED_STACK) {
+                return -1;
+            } else if (m2.status === CREATED_FILE) {
+                return 1;
+            } else if (m1.status === CREATED_FILE) {
+                return -1;
+            } else if (m2.status === UNKNOWN) {
+                return 1;
+            } else if (m1.status === UNKNOWN) {
+                return -1;
             }
+        }
+        return m1.name.localeCompare(m2.name);
+    });
 
-        },
-
-        /**
-         * Returns a sorted list of stacks based on the applied filters and search text.
-         * @returns {Array} The sorted list of stacks.
-         */
-        sortedStackList() {
-            let result = Object.values(this.$root.completeStackList);
-
-            result = result.filter(stack => {
-                // filter by search text
-                // finds stack name, tag name or tag value
-                let searchTextMatch = true;
-                if (this.searchText !== "") {
-                    const loweredSearchText = this.searchText.toLowerCase();
-                    searchTextMatch =
-                        stack.name.toLowerCase().includes(loweredSearchText)
-                        || stack.tags.find(tag => tag.toLowerCase().includes(loweredSearchText)
-                            || tag.value?.toLowerCase().includes(loweredSearchText));
-                }
-
-                // filter by active
-                let activeMatch = true;
-                if (this.filterState.active != null && this.filterState.active.length > 0) {
-                    activeMatch = this.filterState.active.includes(stack.active);
-                }
-
-                // filter by tags
-                let tagsMatch = true;
-                if (this.filterState.tags != null && this.filterState.tags.length > 0) {
-                    tagsMatch = stack.tags.map(tag => tag.tag_id) // convert to array of tag IDs
-                        .filter(stackTagId => this.filterState.tags.includes(stackTagId)) // perform Array Intersaction between filter and stack's tags
-                        .length > 0;
-                }
-
-                return searchTextMatch && activeMatch && tagsMatch;
-            });
-
-            result.sort((m1, m2) => {
-
-                // sort by managed by dockge
-                if (m1.isManagedByDockge && !m2.isManagedByDockge) {
-                    return -1;
-                } else if (!m1.isManagedByDockge && m2.isManagedByDockge) {
-                    return 1;
-                }
-
-                // sort by status
-                if (m1.status !== m2.status) {
-                    if (m2.status === RUNNING) {
-                        return 1;
-                    } else if (m1.status === RUNNING) {
-                        return -1;
-                    } else if (m2.status === EXITED) {
-                        return 1;
-                    } else if (m1.status === EXITED) {
-                        return -1;
-                    } else if (m2.status === CREATED_STACK) {
-                        return 1;
-                    } else if (m1.status === CREATED_STACK) {
-                        return -1;
-                    } else if (m2.status === CREATED_FILE) {
-                        return 1;
-                    } else if (m1.status === CREATED_FILE) {
-                        return -1;
-                    } else if (m2.status === UNKNOWN) {
-                        return 1;
-                    } else if (m1.status === UNKNOWN) {
-                        return -1;
-                    }
-                }
-                return m1.name.localeCompare(m2.name);
-            });
-
-            return result;
-        },
+    return result;
+});
 
         isDarkTheme() {
             return document.body.classList.contains("dark");
@@ -347,7 +337,6 @@ export default {
             this.cancelSelectMode();
         },
     },
-};
 </script>
 
 <style lang="scss" scoped>

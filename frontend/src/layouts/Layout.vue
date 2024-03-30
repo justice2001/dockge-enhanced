@@ -1,42 +1,42 @@
 <template>
     <div :class="classes">
-        <div v-if="! $root.socketIO.connected && ! $root.socketIO.firstConnect" class="lost-connection">
+        <div v-if="!socket.socketIO.connected && ! socket.socketIO.firstConnect" class="lost-connection">
             <div class="container-fluid">
-                {{ $root.socketIO.connectionErrorMsg }}
-                <div v-if="$root.socketIO.showReverseProxyGuide">
-                    {{ $t("reverseProxyMsg1") }} <a href="https://github.com/louislam/uptime-kuma/wiki/Reverse-Proxy" target="_blank">{{ $t("reverseProxyMsg2") }}</a>
+                {{ socket.socketIO.connectionErrorMsg }}
+                <div v-if="socket.socketIO.showReverseProxyGuide">
+                    {{ t("reverseProxyMsg1") }} <a href="https://github.com/louislam/uptime-kuma/wiki/Reverse-Proxy" target="_blank">{{ t("reverseProxyMsg2") }}</a>
                 </div>
             </div>
         </div>
 
         <!-- Desktop header -->
-        <header v-if="! $root.isMobile" class="d-flex flex-wrap justify-content-center py-3 mb-3 border-bottom">
+        <header v-if="false && ! $root.isMobile" class="d-flex flex-wrap justify-content-center py-3 mb-3 border-bottom">
             <router-link to="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none">
                 <object class="bi me-2 ms-4" width="40" height="40" data="/icon.svg" />
                 <span class="fs-4 title">Dockge</span>
             </router-link>
 
             <a v-if="hasNewVersion" target="_blank" href="https://github.com/louislam/dockge/releases" class="btn btn-warning me-3">
-                <font-awesome-icon icon="arrow-alt-circle-up" /> {{ $t("newUpdate") }}
+                <font-awesome-icon icon="arrow-alt-circle-up" /> {{ t("newUpdate") }}
             </a>
 
             <ul class="nav nav-pills">
-                <li v-if="$root.loggedIn" class="nav-item me-2">
+                <li v-if="socket.loggedIn" class="nav-item me-2">
                     <router-link to="/" class="nav-link">
-                        <font-awesome-icon icon="home" /> {{ $t("home") }}
+                        <font-awesome-icon icon="home" /> {{ t("home") }}
                     </router-link>
                 </li>
 
-                <li v-if="$root.loggedIn" class="nav-item me-2">
+                <li v-if="socket.loggedIn" class="nav-item me-2">
                     <router-link to="/console" class="nav-link">
-                        <font-awesome-icon icon="terminal" /> {{ $t("console") }}
+                        <font-awesome-icon icon="terminal" /> {{ t("console") }}
                     </router-link>
                 </li>
 
-                <li v-if="$root.loggedIn" class="nav-item">
+                <li v-if="socket.loggedIn" class="nav-item">
                     <div class="dropdown dropdown-profile-pic">
                         <div class="nav-link" data-bs-toggle="dropdown">
-                            <div class="profile-pic">{{ $root.usernameFirstChar }}</div>
+                            <div class="profile-pic">{{ socket.usernameFirstChar }}</div>
                             <font-awesome-icon icon="angle-down" />
                         </div>
 
@@ -44,10 +44,10 @@
                         <ul class="dropdown-menu">
                             <!-- Username -->
                             <li>
-                                <i18n-t v-if="$root.username != null" tag="span" keypath="signedInDisp" class="dropdown-item-text">
-                                    <strong>{{ $root.username }}</strong>
+                                <i18n-t v-if="socket.username != null" tag="span" keypath="signedInDisp" class="dropdown-item-text">
+                                    <strong>{{ socket.username }}</strong>
                                 </i18n-t>
-                                <span v-if="$root.username == null" class="dropdown-item-text">{{ $t("signedInDispDisabled") }}</span>
+                                <span v-if="socket.username == null" class="dropdown-item-text">{{ t("signedInDispDisabled") }}</span>
                             </li>
 
                             <li><hr class="dropdown-divider"></li>
@@ -56,26 +56,26 @@
 
                             <!--<li>
                                 <router-link to="/registry" class="dropdown-item" :class="{ active: $route.path.includes('settings') }">
-                                    <font-awesome-icon icon="warehouse" /> {{ $t("registry") }}
+                                    <font-awesome-icon icon="warehouse" /> {{ t("registry") }}
                                 </router-link>
                             </li>-->
 
                             <li>
                                 <button class="dropdown-item" @click="scanFolder">
-                                    <font-awesome-icon icon="arrows-rotate" /> {{ $t("scanFolder") }}
+                                    <font-awesome-icon icon="arrows-rotate" /> {{ t("scanFolder") }}
                                 </button>
                             </li>
 
                             <li>
                                 <router-link to="/settings/general" class="dropdown-item" :class="{ active: $route.path.includes('settings') }">
-                                    <font-awesome-icon icon="cog" /> {{ $t("Settings") }}
+                                    <font-awesome-icon icon="cog" /> {{ t("Settings") }}
                                 </router-link>
                             </li>
 
                             <li>
-                                <button class="dropdown-item" @click="$root.logout">
+                                <button class="dropdown-item" @click="socket.logout">
                                     <font-awesome-icon icon="sign-out-alt" />
-                                    {{ $t("Logout") }}
+                                    {{ t("Logout") }}
                                 </button>
                             </li>
                         </ul>
@@ -85,73 +85,48 @@
         </header>
 
         <main>
-            <div v-if="$root.socketIO.connecting" class="container mt-5">
-                <h4>{{ $t("connecting...") }}</h4>
+            <div v-if="socket.socketIO.connecting" class="container mt-5">
+                <h4>{{ t("connecting...") }}</h4>
             </div>
 
-            <router-view v-if="$root.loggedIn" />
-            <Login v-if="! $root.loggedIn && $root.allowLoginDialog" />
+            <router-view v-if="socket.loggedIn" />
+            <Login v-if="! socket.loggedIn && socket.allowLoginDialog" />
         </main>
     </div>
 </template>
 
-<script>
+<script setup>
 import Login from "../components/Login.vue";
+import { useSocket } from "../sockets";
+import { useI18n } from "vue-i18n";
+import { computed } from "vue";
 import { compareVersions } from "compare-versions";
+import { toastRes } from "../toast";
+import { useTheme } from "../theme";
 import { ALL_ENDPOINTS } from "../../../common/util-common";
+const socket = useSocket();
+const theme = useTheme();
+const { t } = useI18n();
 
-export default {
+// Theme or Mobile
+const classes = computed(() => {
+    const classes = {};
+    classes[theme.theme] = true;
+    // classes["mobile"] = this.$root.isMobile;
+    return classes;
+});
 
-    components: {
-        Login,
-    },
-
-    data() {
-        return {
-
-        };
-    },
-
-    computed: {
-
-        // Theme or Mobile
-        classes() {
-            const classes = {};
-            classes[this.$root.theme] = true;
-            classes["mobile"] = this.$root.isMobile;
-            return classes;
-        },
-
-        hasNewVersion() {
-            if (this.$root.info.latestVersion && this.$root.info.version) {
-                return compareVersions(this.$root.info.latestVersion, this.$root.info.version) >= 1;
-            } else {
-                return false;
-            }
-        },
-
-    },
-
-    watch: {
-
-    },
-
-    mounted() {
-
-    },
-
-    beforeUnmount() {
-
-    },
-
-    methods: {
-        scanFolder() {
-            this.$root.emitAgent(ALL_ENDPOINTS, "requestStackList", (res) => {
-                this.$root.toastRes(res);
-            });
-        },
-    },
-
+const hasNewVersion = computed(() => {
+    if (socket.info.latestVersion && socket.info.version) {
+        return compareVersions(socket.info.latestVersion, socket.info.version) >= 1;
+    } else {
+        return false;
+    }
+});
+const scanFolder = () => {
+    socket.emitAgent(ALL_ENDPOINTS, "requestStackList", (res) => {
+        toastRes(res);
+    });
 };
 </script>
 

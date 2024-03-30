@@ -1,13 +1,16 @@
 {
     "compilerOptions": {
-        "module": "ESNext",
-        "target": "ESNext",
+        "module": "esnext",
+        "target": "esnext",
         "strict": true,
-        "moduleResolution": "bundler",
-        "skipLibCheck": true
+        "moduleResolution": "node",
+        "skipLibCheck": true,
+        "resolveJsonModule": true,
+        "allowSyntheticDefaultImports": true
     },
     "include": [
         "backend/**/*",
-        "common/**/*"
+        "common/**/*",
+        "frontend/**/*"
     ]
 }

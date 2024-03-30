@@ -1,6 +1,10 @@
 // @ts-ignore Performance issue when using "vue-i18n", so we use "vue-i18n/dist/vue-i18n.esm-browser.prod.js", but typescript doesn't like that.
 import { createI18n } from "vue-i18n/dist/vue-i18n.esm-browser.prod.js";
 import en from "./lang/en.json";
+import { setPageLocale } from "./util-frontend";
+import { useI18n } from "vue-i18n";
+
+const langModules = import.meta.glob("./lang/*.json");
 
 const languageList = {
     "bg-BG": "Български",
@@ -56,9 +60,19 @@ export const localeDirection = () => {
 };
 
 export const i18n = createI18n({
+    legacy: false,
     locale: currentLocale(),
     fallbackLocale: "en",
     silentFallbackWarn: true,
     silentTranslationWarn: true,
     messages: messages,
 });
+
+export const changeLanguage = async (lang: string) => {
+    const i18n = useI18n();
+    const message = (await langModules["./lang/" + lang + ".json"]()).default;
+    i18n.setLocaleMessage(lang, message);
+    i18n.locale.value = lang;
+    localStorage.locale = lang;
+    setPageLocale();
+};

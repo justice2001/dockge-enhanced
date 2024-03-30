@@ -1,15 +1,15 @@
 // Dayjs init inside this, so it has to be the first import
 import "../../common/util-common";
 
-import { createApp, defineComponent, h } from "vue";
+import { createApp, defineComponent, h, provide, ref, watch } from "vue";
 import App from "./App.vue";
 import { router } from "./router";
 import { FontAwesomeIcon } from "./icon.js";
-import { i18n } from "./i18n";
+import { changeLanguage, currentLocale, i18n } from "./i18n";
 
 // Dependencies
 import "bootstrap";
-import Toast, { POSITION, useToast } from "vue-toastification";
+import Toast, { POSITION } from "vue-toastification";
 import "@xterm/xterm/lib/xterm.js";
 
 // CSS
@@ -19,9 +19,10 @@ import "@xterm/xterm/css/xterm.css";
 import "./styles/main.scss";
 
 // Minxins
-import socket from "./mixins/socket";
-import lang from "./mixins/lang";
-import theme from "./mixins/theme";
+import { useI18n } from "vue-i18n";
+import { setPageLocale } from "./util-frontend";
+import { SocketPlugin, useSocket } from "./sockets";
+import {theme, THEME_INJECT_KEY} from "./theme";
 
 // Set Title
 document.title = document.title + " - " + location.host;
@@ -33,6 +34,7 @@ app.use(Toast, {
     showCloseButtonOnHover: true,
 });
 app.use(router);
+app.use(SocketPlugin);
 app.use(i18n);
 app.component("FontAwesomeIcon", FontAwesomeIcon);
 app.mount("#app");
@@ -41,64 +43,23 @@ app.mount("#app");
  * Root Vue component
  */
 function rootApp() {
-    const toast = useToast();
-
     return defineComponent({
-        mixins: [
-            socket,
-            lang,
-            theme,
-        ],
-        data() {
-            return {
-                loggedIn: false,
-                allowLoginDialog: false,
-                username: null,
-            };
-        },
-        computed: {
+        setup() {
+            const { t } = useI18n();
+            const loggedIn = ref(false);
+            const allowLoginDialog = ref(false);
+            const username = ref(null);
+            // Initialize Locale
+            const locale = ref(currentLocale());
+            changeLanguage(locale.value);
+            provide("locale", locale);
+            watch(locale, (val) => {
+                changeLanguage(locale.value);
+            });
+            // Declare Theme
+            provide(THEME_INJECT_KEY, theme());
 
-        },
-        methods: {
-
-            /**
-             * Show success or error toast dependant on response status code
-             * @param {object} res Response object
-             * @returns {void}
-             */
-            toastRes(res) {
-                let msg = res.msg;
-                if (res.msgi18n) {
-                    if (msg != null && typeof msg === "object") {
-                        msg = this.$t(msg.key, msg.values);
-                    } else {
-                        msg = this.$t(msg);
-                    }
-                }
-
-                if (res.ok) {
-                    toast.success(msg);
-                } else {
-                    toast.error(msg);
-                }
-            },
-            /**
-             * Show a success toast
-             * @param {string} msg Message to show
-             * @returns {void}
-             */
-            toastSuccess(msg : string) {
-                toast.success(this.$t(msg));
-            },
-
-            /**
-             * Show an error toast
-             * @param {string} msg Message to show
-             * @returns {void}
-             */
-            toastError(msg : string) {
-                toast.error(this.$t(msg));
-            },
+            return { t };
         },
         render: () => h(App),
     });
