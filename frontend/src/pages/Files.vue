@@ -1,121 +1,128 @@
-<script lang="ts">
-import { defineComponent } from "vue";
-import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
-import { log } from "../../../backend/log";
+<script setup lang="ts">
+import {useRoute} from "vue-router";
 
 let lastSelectTime = 0;
 
-export default defineComponent({
-    name: "Files",
-    components: { FontAwesomeIcon },
-    data() {
-        return {
-            files: [],
-            selected: [],
-            currentPath: "/",
-            newFileData: {
-                isFolder: false,
-                fileName: "",
-            },
-            stack: {}
-        };
-    },
-    computed: {
-        stackName() {
-            return this.$route.params.stackName;
-        },
+import { ref, computed, onMounted } from "vue";
+import {useSocket} from "../sockets";
+import {toastError, toastRes, toastSuccess} from "../toast";
+import FileEditor from "../components/FileEditor.vue";
+import Confirm from "../components/Confirm.vue";
 
-        endpoint() {
-            return this.stack.endpoint || this.$route.params.endpoint || "";
-        },
+// Use
+const route = useRoute();
+const socket = useSocket();
 
-        newFileLabel() {
-            return this.newFileData.isFolder ? {
-                title: "newFolder",
-                placeholder: "folderName",
-            } : {
-                title: "newFile",
-                placeholder: "fileName",
-            };
-        },
-    },
-    mounted() {
-        this.loadDir("/");
-    },
-    methods: {
-        select(ev, file) {
-            const isMac = window.navigator.userAgent.toLowerCase().includes("mac");
-            if (isMac ? ev.metaKey : ev.ctrlKey) {
-                // 多选
-                if (this.selected.includes(file.name)) {
-                    this.selected = this.selected.filter((f) => f !== file.name);
-                } else {
-                    this.selected.push(file.name);
-                }
-            } else {
-                // 单选
-                if (this.selected.length === 1 && file.name === this.selected[0] && Date.now() - lastSelectTime < 1000) {
-                    console.log("Double Click");
-                    this.open(file);
-                }
-                this.selected = [ file.name ];
-                lastSelectTime = Date.now();
-            }
-        },
+// Refs
+const fileEditor = ref<FileEditor>();
+const createFileModal = ref<Confirm>();
 
-        open(file) {
-            console.log(file);
-            if (file.folder) {
-                // Open Folder
-                this.loadDir(file.path);
-            } else {
-                // Open File
-                this.$refs.fileEditor.open(file);
-            }
-        },
+// Reactive variables
+const files = ref([]);
+const selected = ref<string[]>([]);
+const currentPath = ref<string>("/");
+const newFileData = ref<{ isFolder: boolean; fileName: string }>({
+    isFolder: false,
+    fileName: "",
+});
+const stack = ref<Record<string, object>>({});
 
-        loadDir(dir: string) {
-            this.$root.emitAgent(this.endpoint, "listDir", this.stackName, dir, (res) => {
-                console.log(res.files);
-                this.currentPath = dir;
-                this.files = res.files;
-            });
-        },
+// Computed properties
+const stackName = computed(() => {
+    return route.params.stackName;
+});
 
-        openNewFileModel(isFolder: boolean = false) {
-            this.newFileData.isFolder = isFolder;
-            this.newFileData.fileName = "";
-            this.newFileData.fileName = "";
-            this.$refs.createFileModal.show();
-        },
+const endpoint = computed(() => {
+    return stack.value.endpoint || route.params.endpoint || "";
+});
 
-        newFile() {
-            // Check file
-            const filter = this.files.filter(f => f.name === this.newFileData.fileName);
-            if (filter.length > 0) {
-                this.$root.toastError("File Exist");
-                return;
-            }
-            this.$root.emitAgent(this.endpoint, "createFile", this.stackName, this.currentPath, this.newFileData.isFolder
-                , this.newFileData.fileName, (res) => {
-                    if (res.ok) {
-                        this.$root.toastSuccess("Created");
-                        this.loadDir(this.currentPath);
-                    }
-                });
-        },
-        
-        loadStack() {
-            this.processing = true;
-            this.$root.emitAgent(this.endpoint, "getStack", this.stack.name, (res) => {
-                if (res.ok) {
-                    this.stack = res.stack;
-                } else {
-                    this.$root.toastRes(res);
-                }
-            })
+const newFileLabel = computed(() => {
+    return newFileData.value.isFolder ? {
+        title: "newFolder",
+        placeholder: "folderName",
+    } : {
+        title: "newFile",
+        placeholder: "fileName",
+    };
+});
+
+// Methods
+const select = (ev: MouseEvent, file) => {
+    const isMac = window.navigator.userAgent.toLowerCase().includes("mac");
+    if (isMac ? ev.metaKey : ev.ctrlKey) {
+        // Multiple selection
+        if (selected.value.includes(file.name)) {
+            selected.value = selected.value.filter((f) => f !== file.name);
+        } else {
+            selected.value.push(file.name);
         }
-    },
+    } else {
+        // Single selection
+        if (selected.value.length === 1 && file.name === selected.value[0] && Date.now() - lastSelectTime < 1000) {
+            console.log("Double Click");
+            open(file);
+        }
+        selected.value = [file.name];
+        lastSelectTime = Date.now();
+    }
+};
+
+const open = (file) => {
+    console.log(file);
+    if (file.folder) {
+        // Open Folder
+        loadDir(file.path);
+    } else {
+        // Open File
+        fileEditor.value?.open(file);
+    }
+};
+
+const loadDir = (dir: string) => {
+    socket.emitAgent(endpoint.value, "listDir", stackName.value, dir, (res: { files: any[] }) => {
+        console.log(res.files);
+        currentPath.value = dir;
+        files.value = res.files;
+    });
+};
+
+const openNewFileModel = (isFolder = false) => {
+    newFileData.value.isFolder = isFolder;
+    newFileData.value.fileName = "";
+    newFileData.value.fileName = "";
+    createFileModal.value?.show();
+};
+
+const newFile = () => {
+    // Check file existence
+    const filter = files.value.filter(f => f.name === newFileData.value.fileName);
+    if (filter.length > 0) {
+        toastError("File Exist");
+        return;
+    }
+    socket.emitAgent(endpoint.value, "createFile", stackName.value, currentPath.value, newFileData.value.isFolder
+        , newFileData.value.fileName, (res: { ok: boolean }) => {
+            if (res.ok) {
+                toastSuccess("Created");
+                loadDir(currentPath.value);
+            }
+        });
+};
+
+const loadStack = () => {
+    processing.value = true;
+    socket.emitAgent(endpoint.value, "getStack", stack.value.name, (res: { ok: boolean; stack: Record<string, any> }) => {
+        if (res.ok) {
+            stack.value = res.stack;
+        } else {
+            toastRes(res);
+        }
+    });
+};
+
+// Lifecycle hook
+onMounted(() => {
+    loadDir("/");
 });
 </script>
 

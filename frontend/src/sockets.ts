@@ -1,4 +1,4 @@
-import {App, computed, ComputedRef, getCurrentInstance, inject, Ref, ref, watch} from "vue";
+import { App, computed, ComputedRef, getCurrentInstance, inject, Ref, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { io } from "socket.io-client";
 import { AgentSocket } from "../../common/agent-socket";
@@ -286,7 +286,10 @@ export const Socket = () => {
         return socket;
     };
 
-    const emitAgent = (endpoint : string, eventName : string, ...args : unknown[]) => {
+    const emitAgent = (endpoint : string | undefined, eventName : string, ...args : unknown[]) => {
+        if (!endpoint) {
+            return;
+        }
         getSocket().emit("agent", endpoint, eventName, ...args);
     };
 
@@ -400,7 +403,10 @@ export const Socket = () => {
         stackList,
         agentCount,
         allAgentStackList,
+        agentStatusList,
+        agentList,
         info,
+        endpointDisplayFunction,
         getSocket,
         logout,
         emitAgent

@@ -1,6 +1,8 @@
 import {useToast} from "vue-toastification";
+import {i18n} from "./i18n";
 
 const toast = useToast();
+const {t} = i18n.global;
 
 export const toastRes = (res: unknown) => {
     if (typeof res !== "object") {

@@ -40,12 +40,12 @@
                     <div class="shadow-box big-padding">
                         <h4 class="mb-3">{{ t("dockgeAgent", 2) }} <span class="badge bg-warning" style="font-size: 12px;">beta</span></h4>
 
-                        <div v-for="(agent, endpoint) in $root.agentList" :key="endpoint" class="mb-3 agent">
+                        <div v-for="(agent, endpoint) in socket.agentList.value" :key="endpoint" class="mb-3 agent">
                             <!-- Agent Status -->
-                            <template v-if="$root.agentStatusList[endpoint]">
-                                <span v-if="$root.agentStatusList[endpoint] === 'online'" class="badge bg-primary me-2">{{ t("agentOnline") }}</span>
-                                <span v-else-if="$root.agentStatusList[endpoint] === 'offline'" class="badge bg-danger me-2">{{ t("agentOffline") }}</span>
-                                <span v-else class="badge bg-secondary me-2">{{ t($root.agentStatusList[endpoint]) }}</span>
+                            <template v-if="socket.agentStatusList.value[endpoint]">
+                                <span v-if="socket.agentStatusList.value[endpoint] === 'online'" class="badge bg-primary me-2">{{ t("agentOnline") }}</span>
+                                <span v-else-if="socket.agentStatusList.value[endpoint] === 'offline'" class="badge bg-danger me-2">{{ t("agentOffline") }}</span>
+                                <span v-else class="badge bg-secondary me-2">{{ t(socket.agentStatusList.value[endpoint]) }}</span>
                             </template>
 
                             <!-- Agent Display Name -->
