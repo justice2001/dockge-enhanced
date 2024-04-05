@@ -1,10 +1,8 @@
-# Project Monika
+# Dockge Enhanced
 
-这是一个 Dockge 的二次开发项目，旨在将 Dockge 修改为适合 HomeLab 的管理平台，用于管理服务器的应用。
+这是一个 Dockge 的二次开发项目，旨在将 Dockge 修改为更加强大的管理平台，用于管理服务器的应用。
 
 在 Dockge 基础上加入了配置管理的功能。
-
-Project Monika 仅为该项目代号， 并非是项目名称，项目名称还没想出来。
 
 ## 📄 TODO
 
@@ -34,12 +32,16 @@ Project Monika 仅为该项目代号， 并非是项目名称，项目名称还�
 
 - [ ] 添加使用模版创建 stack 的功能
 
+### 代码
+
+- [ ] 重构为 composition api
+
 ## Docker包
 
-如果你想体验一下，可以使用我的docker镜像: `git.mczhengyi.top/zhengyi/dockge:nightly`,下载速度会比较慢。
+如果你想体验一下，可以使用我的docker镜像: `zhengyi59/dockge:nightly`,暂时只提供 linux-amd64 的包。
 
 但这并不是正式版本，无法保证稳定运行！
 
-## BACK
+## 鸣谢
 
-`--platform linux/amd64,linux/arm64,linux/arm/v7`
+WIP

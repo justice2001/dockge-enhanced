@@ -46,14 +46,13 @@ jobs:
         with:
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
-          registry: ${{ secrets.REGISTRY_URL }}
 
       # Build and push the Docker image
       - name: Build and push the Docker image
         run: |
-          docker build -t ${{ secrets.REGISTRY_URL }}/zhengyi/dockge:nightly --file ./docker/Dockerfile --push .
+          docker build -t zhengyi59/dockge-enhanced:nightly --file ./docker/Dockerfile --push .
 
       # Clean up Docker images
       - name: Clean up Docker images
         run: |
-          docker rmi ${{ secrets.REGISTRY_URL }}/zhengyi/dockge:nightly
+          docker rmi zhengyi59/dockge-enhanced:nightly
