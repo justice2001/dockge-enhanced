@@ -8,7 +8,7 @@ const HomeView: React.FC = () => {
     return (
         <>
             <Space direction="vertical" style={{ width: "100%" }}>
-                <ProCard headerBordered title={"数据概览"} bordered>
+                <ProCard headerBordered title={"容器概览"} bordered>
                     <StatisticCard.Group>
                         <StatisticCard
                             statistic={{
@@ -71,17 +71,11 @@ const HomeView: React.FC = () => {
                         <StatisticCard statistic={{
                             title: "CPU 占用率",
                             value: "20%"
-                        }} chart={
-                            <img
-                                src="https://gw.alipayobjects.com/zos/alicdn/6YR18tCxJ/huanlv.svg"
-                                alt="百分比"
-                                width="100%"
-                            />
-                        } chartPlacement={"left"}/>
+                        }} chart={<Tiny.Ring percent={0.2} width={60} height={60} color={[ "#E8EFF5", "#40de00" ]} />} chartPlacement={"left"}/>
                         <StatisticCard statistic={{
                             title: "内存占用率",
                             value: "60%"
-                        }} chart={<Tiny.Ring percent={0.6} width={60} height={60} color={[ "#E8EFF5", "#66AFF4" ]} />}
+                        }} chart={<Tiny.Ring percent={0.6} width={60} height={60} color={[ "#E8EFF5", "#ffc245" ]} />}
                         chartPlacement={"left"}/>
                     </StatisticCard.Group>
                 </ProCard>

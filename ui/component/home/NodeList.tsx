@@ -9,6 +9,9 @@ import {
     ReloadOutlined
 } from "@ant-design/icons";
 import { Badge, Button, Space } from "antd";
+import ChipsetOutlined from "../../src/icon/ChipsetOutlined";
+import MemoryOutlined from "../../src/icon/MemoryOutlined";
+import ServerOutlined from "../../src/icon/ServerOutlined";
 
 const statusMap: Record<string, {
     status: "success" | "default" | "processing" | "error" | "warning";
@@ -84,7 +87,7 @@ const nodeList: React.FC = () => {
                 dataSource={demoData}
                 metas={{
                     avatar: {
-                        render: () => <CloudServerOutlined style={{ fontSize: 20 }} />
+                        render: () => <ServerOutlined style={{ fontSize: 22, color: "#1D63ED" }} />
                     },
                     title: {
                         dataIndex: "nodeName"
@@ -99,9 +102,8 @@ const nodeList: React.FC = () => {
                             return (
                                 <Space size={"large"}>
                                     <Space direction={"vertical"}>
-                                        <div>CPU: {dt.cpu}</div>
-                                        <div>MEM: {dt.memory}</div>
-                                        <div>DISK: {dt.disk}</div>
+                                        <div><ChipsetOutlined /> {dt.cpu}</div>
+                                        <div><MemoryOutlined /> {dt.memory}</div>
                                     </Space>
                                     <Space direction={"vertical"}>
                                         <div><DockerOutlined /> {dt.dockerVersion}</div>
