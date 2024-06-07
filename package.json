@@ -3,7 +3,7 @@
     "version": "2.0.0",
     "type": "module",
     "engines": {
-        "node": ">= 18.0.0 && <= 18.17.1"
+        "node": ">= 18.0.0"
     },
     "packageManager": "pnpm@8.12.1",
     "scripts": {
@@ -14,6 +14,7 @@
         "dev": "concurrently -k -r \"wait-on tcp:5002 && pnpm run dev:backend \" \"pnpm run dev:frontend\"",
         "dev:backend": "cross-env NODE_ENV=development tsx watch --inspect ./backend/index.ts",
         "dev:frontend": "cross-env NODE_ENV=development vite --host --config ./frontend/vite.config.ts",
+        "dev:react": "cross-env NODE_ENV=development vite --host --config ./ui/vite.config.ts",
         "release-final": "tsx ./extra/test-docker.ts && tsx extra/update-version.ts && pnpm run build:frontend && npm run build:docker",
         "release-beta": "tsx ./extra/test-docker.ts && tsx extra/update-version.ts && pnpm run build:frontend && npm run build:docker-beta",
         "build:frontend": "vite build --config ./frontend/vite.config.ts",
@@ -28,9 +29,13 @@
         "reset-password": "tsx ./extra/reset-password.ts"
     },
     "dependencies": {
+        "@ant-design/charts": "^2.1.1",
+        "@ant-design/icons": "^5.3.7",
+        "@ant-design/pro-components": "^2.7.9",
         "@homebridge/node-pty-prebuilt-multiarch": "~0.11.12",
         "@inventage/envsubst": "^0.16.0",
         "@louislam/sqlite3": "~15.1.6",
+        "antd": "^5.17.3",
         "bcryptjs": "~2.4.3",
         "check-password-strength": "~2.0.7",
         "command-exists": "~1.2.9",
@@ -48,6 +53,9 @@
         "limiter-es6-compat": "~2.1.2",
         "mysql2": "~3.6.5",
         "promisify-child-process": "~4.1.2",
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0",
+        "react-router-dom": "^6.23.1",
         "redbean-node": "~0.3.3",
         "semver": "^7.5.4",
         "socket.io": "~4.7.2",
@@ -70,9 +78,12 @@
         "@types/command-exists": "~1.2.3",
         "@types/express": "~4.17.21",
         "@types/jsonwebtoken": "~9.0.5",
+        "@types/react": "^18.2.66",
+        "@types/react-dom": "^18.2.22",
         "@types/semver": "^7.5.6",
         "@typescript-eslint/eslint-plugin": "~6.8.0",
         "@typescript-eslint/parser": "~6.8.0",
+        "@vitejs/plugin-react": "^4.2.1",
         "@vitejs/plugin-vue": "~4.5.2",
         "@xterm/addon-fit": "beta",
         "@xterm/xterm": "beta",
@@ -87,7 +98,7 @@
         "sass": "~1.68.0",
         "typescript": "~5.2.2",
         "unplugin-vue-components": "~0.25.2",
-        "vite": "~5.0.10",
+        "vite": "^5.2.0",
         "vite-plugin-compression": "~0.5.1",
         "vue": "~3.3.13",
         "vue-eslint-parser": "~9.3.2",

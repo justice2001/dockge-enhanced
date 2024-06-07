@@ -37,7 +37,7 @@ import { AgentSocketHandler } from "./agent-socket-handler";
 import { AgentSocket } from "../common/agent-socket";
 import { ManageAgentSocketHandler } from "./socket-handlers/manage-agent-socket-handler";
 import { Terminal } from "./terminal";
-import {FileSocketHandler} from "./agent-socket-handlers/file-socket-handler";
+import { FileSocketHandler } from "./agent-socket-handlers/file-socket-handler";
 
 export class DockgeServer {
     app : Express;
@@ -564,7 +564,7 @@ export class DockgeServer {
         }
 
         if (!fs.existsSync(this.dataDir)) {
-            fs.mkdirSync(this.dataDir, {recursive: true});
+            fs.mkdirSync(this.dataDir, { recursive: true });
         }
 
         log.info("server", `Data Dir: ${this.config.dataDir}`);

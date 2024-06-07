@@ -4,10 +4,12 @@
         "target": "ESNext",
         "strict": true,
         "moduleResolution": "bundler",
+        "jsx": "react-jsx",
         "skipLibCheck": true
     },
     "include": [
         "backend/**/*",
-        "common/**/*"
+        "common/**/*",
+        "ui/**/*"
     ]
 }
