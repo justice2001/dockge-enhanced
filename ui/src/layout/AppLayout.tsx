@@ -2,9 +2,10 @@ import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import { Dropdown, Space } from "antd";
 import React from "react";
 import {
+    AppstoreOutlined,
     ContainerOutlined, HomeOutlined,
     InboxOutlined, InfoCircleOutlined, KeyOutlined,
-    LogoutOutlined, SettingOutlined
+    LogoutOutlined, SaveOutlined, SettingOutlined
 } from "@ant-design/icons";
 import { PageContainer, ProCard, ProLayout } from "@ant-design/pro-components";
 
@@ -37,9 +38,19 @@ export default function () {
                 icon: <ContainerOutlined/>
             },
             {
-                path: "/image",
+                path: "/images",
                 name: "Images",
                 icon: <InboxOutlined/>
+            },
+            {
+                path: "/backups",
+                name: "Backups",
+                icon: <SaveOutlined />
+            },
+            {
+                path: "/store",
+                name: "App Store",
+                icon: <AppstoreOutlined />
             },
             {
                 path: "/settings",
@@ -87,6 +98,15 @@ export default function () {
                             </Dropdown>
                         );
                     },
+                }}
+                token={{
+                    sider: {
+                        colorMenuBackground: "#fff",
+                        colorMenuItemDivider: "#dfdfdf",
+                        colorTextMenu: "#595959",
+                        colorTextMenuSelected: "rgba(42,122,251,1)",
+                        colorBgMenuItemSelected: "rgba(230,243,254,1)",
+                    }
                 }}
                 actionsRender={(props) => {
                     if (props.isMobile) {
