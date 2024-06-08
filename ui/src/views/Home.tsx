@@ -2,7 +2,7 @@ import React from "react";
 import { ProCard, StatisticCard } from "@ant-design/pro-components";
 import { Space } from "antd";
 import { Tiny } from "@ant-design/charts";
-import NodeList from "../../component/home/NodeList";
+import NodeList from "../component/home/NodeList";
 
 const HomeView: React.FC = () => {
     return (

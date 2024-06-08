@@ -1,109 +1,99 @@
-const ComposeView: React.FC = () => (
-    <>
-        <h1>COMPOSE PAGE</h1>
-        <ul>
-            <li>COUNT: 1</li>
-            <li>COUNT: 2</li>
-            <li>COUNT: 3</li>
-            <li>COUNT: 4</li>
-            <li>COUNT: 5</li>
-            <li>COUNT: 6</li>
-            <li>COUNT: 7</li>
-            <li>COUNT: 8</li>
-            <li>COUNT: 9</li>
-            <li>COUNT: 10</li>
-            <li>COUNT: 11</li>
-            <li>COUNT: 12</li>
-            <li>COUNT: 13</li>
-            <li>COUNT: 14</li>
-            <li>COUNT: 15</li>
-            <li>COUNT: 16</li>
-            <li>COUNT: 17</li>
-            <li>COUNT: 18</li>
-            <li>COUNT: 19</li>
-            <li>COUNT: 20</li>
-            <li>COUNT: 21</li>
-            <li>COUNT: 22</li>
-            <li>COUNT: 23</li>
-            <li>COUNT: 24</li>
-            <li>COUNT: 25</li>
-            <li>COUNT: 26</li>
-            <li>COUNT: 27</li>
-            <li>COUNT: 28</li>
-            <li>COUNT: 29</li>
-            <li>COUNT: 30</li>
-            <li>COUNT: 31</li>
-            <li>COUNT: 32</li>
-            <li>COUNT: 33</li>
-            <li>COUNT: 34</li>
-            <li>COUNT: 35</li>
-            <li>COUNT: 36</li>
-            <li>COUNT: 37</li>
-            <li>COUNT: 38</li>
-            <li>COUNT: 39</li>
-            <li>COUNT: 40</li>
-            <li>COUNT: 41</li>
-            <li>COUNT: 42</li>
-            <li>COUNT: 43</li>
-            <li>COUNT: 44</li>
-            <li>COUNT: 45</li>
-            <li>COUNT: 46</li>
-            <li>COUNT: 47</li>
-            <li>COUNT: 48</li>
-            <li>COUNT: 49</li>
-            <li>COUNT: 50</li>
-            <li>COUNT: 51</li>
-            <li>COUNT: 52</li>
-            <li>COUNT: 53</li>
-            <li>COUNT: 54</li>
-            <li>COUNT: 55</li>
-            <li>COUNT: 56</li>
-            <li>COUNT: 57</li>
-            <li>COUNT: 58</li>
-            <li>COUNT: 59</li>
-            <li>COUNT: 60</li>
-            <li>COUNT: 61</li>
-            <li>COUNT: 62</li>
-            <li>COUNT: 63</li>
-            <li>COUNT: 64</li>
-            <li>COUNT: 65</li>
-            <li>COUNT: 66</li>
-            <li>COUNT: 67</li>
-            <li>COUNT: 68</li>
-            <li>COUNT: 69</li>
-            <li>COUNT: 70</li>
-            <li>COUNT: 71</li>
-            <li>COUNT: 72</li>
-            <li>COUNT: 73</li>
-            <li>COUNT: 74</li>
-            <li>COUNT: 75</li>
-            <li>COUNT: 76</li>
-            <li>COUNT: 77</li>
-            <li>COUNT: 78</li>
-            <li>COUNT: 79</li>
-            <li>COUNT: 80</li>
-            <li>COUNT: 81</li>
-            <li>COUNT: 82</li>
-            <li>COUNT: 83</li>
-            <li>COUNT: 84</li>
-            <li>COUNT: 85</li>
-            <li>COUNT: 86</li>
-            <li>COUNT: 87</li>
-            <li>COUNT: 88</li>
-            <li>COUNT: 89</li>
-            <li>COUNT: 90</li>
-            <li>COUNT: 91</li>
-            <li>COUNT: 92</li>
-            <li>COUNT: 93</li>
-            <li>COUNT: 94</li>
-            <li>COUNT: 95</li>
-            <li>COUNT: 96</li>
-            <li>COUNT: 97</li>
-            <li>COUNT: 98</li>
-            <li>COUNT: 99</li>
-            <li>COUNT: 100</li>
-        </ul>
-    </>
-);
+import { StackStatus } from "../types/Stacks";
+import { ProList, ProListProps } from "@ant-design/pro-components";
+import { Badge, Button, Flex, Space, Tag } from "antd";
+import { LinkOutlined } from "@ant-design/icons";
+import Avatar from "antd/es/avatar/avatar";
+import StatusBadge from "../component/StatusBadge";
+import { StackStatusMap, stringToColor, textColor } from "../utils/stack-utils";
+
+type Stack = {
+    name: string;
+    icon: string;
+    tags: string[];
+    endpoint: string;
+    state: StackStatus;
+    envFile: string;
+    composeFile: string;
+};
+
+const demoData: Stack[] = [
+    {
+        name: "nginx",
+        icon: "https://www.svgrepo.com/show/373924/nginx.svg",
+        tags: [ "website" ],
+        endpoint: "10.0.0.28",
+        state: "running",
+        envFile: "PORT=880\nSSL_PORT=8443",
+        composeFile: "version: 3.0\nservices...."
+    },
+    {
+        name: "redis",
+        icon: "https://cdn4.iconfinder.com/data/icons/redis-2/1451/Untitled-2-1024.png",
+        tags: [ "tools", "dev" ],
+        endpoint: "10.0.0.28",
+        state: "stopped",
+        envFile: "PORT=880\nSSL_PORT=8443",
+        composeFile: "version: 3.0\nservices...."
+    }
+];
+
+const ComposeView: React.FC = () => {
+    const gridView:ProListProps<Stack> = {
+        grid: {
+            gutter: 16,
+            column: 3
+        },
+        metas: {
+            title: {
+                dataIndex: "name"
+            },
+            avatar: {
+                dataIndex: "icon",
+                render: (dom, row) => (
+                    <Avatar src={row.icon} style={{ marginRight: 8 }} />
+                )
+            },
+            subTitle: {
+                render: (dom, row) => (
+                    <StatusBadge map={StackStatusMap} value={row.state} />
+                )
+            },
+            content: {
+                render: (dom, row) => {
+                    return (<Space direction={"vertical"}>
+                        <Space>
+                            <LinkOutlined />
+                            <a href={"//localhost:8080"}>8080</a>
+                        </Space>
+                        <Flex gap={"4px 0"} wrap>
+                            <Tag color={"processing"}>{row.endpoint}</Tag>
+                            {row.tags.map(tag => {
+                                const color = stringToColor(tag);
+                                return (<Tag color={color}
+                                    style={{ color: textColor(color) }}>{tag}</Tag>);
+                            })}
+                        </Flex>
+                    </Space>);
+                }
+            },
+            actions: {
+                render: () => [
+                    <a>编辑</a>,
+                    <a>删除</a>
+                ]
+            }
+        }
+    };
+
+    return (
+        <>
+            <ProList<Stack>
+                headerTitle={"堆栈列表"}
+                dataSource={demoData}
+                {...gridView}
+            />
+        </>
+    );
+};
 
 export default ComposeView;

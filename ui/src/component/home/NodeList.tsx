@@ -9,9 +9,9 @@ import {
     ReloadOutlined
 } from "@ant-design/icons";
 import { Badge, Button, Space } from "antd";
-import ChipsetOutlined from "../../src/icon/ChipsetOutlined";
-import MemoryOutlined from "../../src/icon/MemoryOutlined";
-import ServerOutlined from "../../src/icon/ServerOutlined";
+import ChipsetOutlined from "../../icon/ChipsetOutlined";
+import MemoryOutlined from "../../icon/MemoryOutlined";
+import ServerOutlined from "../../icon/ServerOutlined";
 
 const statusMap: Record<string, {
     status: "success" | "default" | "processing" | "error" | "warning";
